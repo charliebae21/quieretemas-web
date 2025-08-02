@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuiéreteMás - Asesoría de Hábitos Saludables con IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+        .hero-bg {
+            background-image: url('/assets/img/personasGrupo.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        .modal-backdrop {
+            transition: opacity 0.3s ease;
+        }
+        /* --- Paleta de colores Verde --- */
+        .brand-green-text { color: #00B050; }
+        .bg-brand-gradient { background-image: linear-gradient(to right, #00B050, #43E218); }
+        .hover\:bg-brand-gradient-dark:hover { background-image: linear-gradient(to right, #008a3e, #36b313); }
+        .bg-brand-light { background-color: #f0fff4; }
+        .border-brand-green { border-color: #00B050; }
+        .ring-brand-green:focus { --tw-ring-color: #00B050; }
+        .accent-brand-green { accent-color: #00B050; }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loader {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #00B050;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        .plan-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        /* Reducción de espacio entre secciones */
+        section {
+            padding-top: 6rem;
+            padding-bottom: 6rem;
+        }
+        @media (min-width: 768px) {
+            section {
+                padding-top: 4rem;
+                padding-bottom: 4rem;
+            }
+        }
+        .quiz-option {
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+        .quiz-option:hover {
+            background-color: #e6f7f0;
+            border-color: #00B050;
+        }
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 9999px;
+            height: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .progress-bar {
+            background-color: #00B050;
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.4s ease;
+        }
+        /* Carousel Styles */
+        .carousel-track {
+            transition: transform 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold brand-green-text">QuiéreteMás</a>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#servicios" class="text-gray-600 hover:brand-green-text transition">Servicios</a>
+                <a href="#quienes-somos" class="text-gray-600 hover:brand-green-text transition">Quién Soy</a>
+                <a href="#coach" class="text-gray-600 hover:brand-green-text transition">Coach IA</a>
+                <a href="#recetas" class="text-gray-600 hover:brand-green-text transition">Recetas IA</a>
+                <a href="historias.html" class="text-gray-600 hover:brand-green-text transition">Nuestras Historias</a>
+                <a href="#tienda" class="text-gray-600 hover:brand-green-text transition">Planes</a>
+            </div>
+            <button id="open-imc-modal-btn-nav" class="hidden md:block bg-brand-gradient hover:bg-brand-gradient-dark text-white font-semibold py-2 px-5 rounded-full transition">
+                Empezar Asesoría
+            </button>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:brand-green-text">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#servicios" class="block py-2 text-gray-600 hover:brand-green-text">Servicios</a>
+            <a href="#quienes-somos" class="block py-2 text-gray-600 hover:brand-green-text">Quién Soy</a>
+            <a href="#coach" class="block py-2 text-gray-600 hover:brand-green-text">Coach IA</a>
+            <a href="#recetas" class="block py-2 text-gray-600 hover:brand-green-text">Recetas IA</a>
+            <a href="historias.html" class="block py-2 text-gray-600 hover:brand-green-text">Nuestras Historias</a>
+            <a href="#tienda" class="block py-2 text-gray-600 hover:brand-green-text">Planes</a>
+            <a href="#" id="open-imc-modal-btn-mobile" class="mt-2 block text-center bg-brand-gradient hover:bg-brand-gradient-dark text-white font-semibold py-2 px-5 rounded-full transition">Empezar Asesoría</a>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-bg text-white !py-0">
+            <div class="bg-black/50 min-h-[80vh] flex items-center">
+                <div class="container mx-auto px-6 text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">¡Tu transformación comienza Hoy!</h1>
+                    <p class="text-lg md:text-xl mb-4 max-w-3xl mx-auto font-light">Construyamos Hábitos que Perduran y te Inspiran</p>
+                    <p class="text-md md:text-lg mb-8 max-w-2xl mx-auto font-light">Descubre el plan que tu cuerpo necesita y la comida que tu paladar ama. El primer paso hacia tu nueva vida está a un clic de distancia.</p>
+                    <button id="open-imc-modal-btn-hero" class="bg-brand-gradient hover:bg-brand-gradient-dark text-white font-bold py-3 px-10 rounded-full transition text-lg shadow-lg">✨ Recibe tu Plan con IA Gratis</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Servicios Section -->
+        <section id="servicios" class="bg-brand-light">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">¿Te frustran las dietas aburridas y estrictas que no dan resultados?</h2>
+                <p class="text-center text-gray-600 mb-16 max-w-3xl mx-auto">¡Es momento de cambiar! Comer saludable puede ser un placer, y estoy aquí para demostrártelo. Junt@s crearemos un plan de alimentación delicioso, adaptado 100% a tus gustos, tu cuerpo y tus objetivos. Porque cuidarte debe sentirse bien, no como un sacrificio.</p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white p-8 rounded-xl shadow-md text-center flex flex-col"><div class="flex justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00B050" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cpu"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg></div><h3 class="text-xl font-semibold mb-4 brand-green-text">Asesoría Potenciada con IA</h3><p class="flex-grow">Recibe una guía gratuita creada con IA, ajustada a tus necesidades para empezar tu transformación desde hoy.</p></div>
+                    <div class="bg-white p-8 rounded-xl shadow-md text-center flex flex-col"><div class="flex justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00B050" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-3"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div><h3 class="text-xl font-semibold mb-4 brand-green-text">Recetas Creativas</h3><p class="flex-grow">Nuestra IA crea recetas saludables y deliciosas con los ingredientes que ya tienes en casa. Fácil, rápido y nutritivo.</p></div>
+                    <div class="bg-white p-8 rounded-xl shadow-md text-center flex flex-col"><div class="flex justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00B050" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-circle"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></div><h3 class="text-xl font-semibold mb-4 brand-green-text">Coach de Bienestar</h3><p class="flex-grow">Supera antojos y desmotivación con apoyo instantáneo de nuestra IA, disponible siempre que lo necesites.</p></div>
+                    <div class="bg-white p-8 rounded-xl shadow-md text-center flex flex-col"><div class="flex justify-center mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00B050" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><h3 class="text-xl font-semibold mb-4 brand-green-text">Acompañamiento 1:1</h3><p class="flex-grow">Te acompaño a diario con seguimiento en tiempo real, apoyo emocional y motivación constante vía WhatsApp todos los días.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quienes Somos Section -->
+        <section id="quienes-somos" class="bg-white">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div class="md:w-1/2">
+                        <img src="/assets/img/ReinaTrabajando.png" alt="Imagen de Yole, fundadora de QuiéreteMás" class="rounded-xl shadow-xl w-full" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Imagen+Fundadora';">
+                    </div>
+                    <div class="md:w-1/2">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-4">🌿 De mi transformación a la tuya</h2>
+                        <p class="text-gray-600 mb-8">Mi experiencia personal me enseñó que el cambio verdadero no nace de la restricción, sino de la conexión, la comprensión y el amor propio. Desde 2020 acompaño a personas en la mejora de sus hábitos y bienestar. En Quiéretemás, diseñamos planes simples y sostenibles, con valoración personalizada, herramientas prácticas y productos de hidratación natural que aceleran y mantienen resultados. Hoy comparto lo que aprendí… para acompañarte en tu proceso.</p>
+                        <a href="#tienda" class="bg-brand-gradient hover:bg-brand-gradient-dark text-white font-bold py-3 px-8 rounded-full transition text-lg shadow-md">Quiero empezar ahora</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Video Section -->
+        <section id="video" class="bg-brand-light">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">🎥 Hace cinco años, comencé este camino...</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">...buscando sentirme mejor conmigo misma. Lo que descubrí fue mucho más poderoso: un cambio real, sólido, duradero… y sobre todo natural. Desde entonces, he acompañado a más de 107 personas que, como yo, alguna vez dudaron si era posible transformar su vida sin restricciones extremas ni sacrificios innecesarios. Hoy quiero mostrarte cómo lo logramos, desde la experiencia, el conocimiento y la empatía.</p>
+                <div class="aspect-video max-w-4xl mx-auto rounded-xl shadow-2xl overflow-hidden">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/LXb3EKWsInQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Coach Section -->
+        <section id="coach" class="bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Tu Coach de Bienestar Personal</h2>
+                <p class="text-gray-600 mb-12 max-w-2xl mx-auto">¿Te sientes sin motivación o con un antojo? Cuéntale a tu coach cómo te sientes y recibe un consejo instantáneo.</p>
+                <div class="max-w-2xl mx-auto">
+                    <textarea id="coach-input" rows="3" placeholder="Ej: 'Hoy no tengo ganas de hacer ejercicio...'" class="w-full p-4 border rounded-xl focus:outline-none focus:ring-2 ring-brand-green"></textarea>
+                    <button id="get-coach-advice-btn" class="mt-4 bg-brand-gradient text-white font-bold py-3 px-8 rounded-full hover:bg-brand-gradient-dark transition">✨ Pedir Consejo a mi Coach</button>
+                </div>
+                <div id="coach-result-container" class="mt-8 max-w-2xl mx-auto"></div>
+            </div>
+        </section>
+
+        <!-- Recetas Section con IA -->
+        <section id="recetas" class="bg-brand-light">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">¿Sin Ideas para Cocinar?</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Escribe los ingredientes que tienes (ej: "pollo, arroz, brócoli") y deja que nuestra IA cree una receta saludable y deliciosa para ti.</p>
+                <div class="max-w-2xl mx-auto">
+                    <div class="flex gap-2"><input type="text" id="recipe-ingredients" placeholder="Escribe tus ingredientes..." class="w-full px-4 py-3 border rounded-full focus:outline-none focus:ring-2 ring-brand-green"><button id="generate-recipe-btn" class="bg-brand-gradient text-white font-bold py-3 px-6 rounded-full hover:bg-brand-gradient-dark transition">✨ Generar</button></div>
+                </div>
+                <div id="recipe-result-container" class="mt-12 max-w-4xl mx-auto"></div>
+            </div>
+        </section>
+
+        <!-- Tienda (Planes) Section -->
+        <section id="tienda" class="bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4">Patricia es Diferente de Camilo</h2>
+                <p class="text-center text-gray-600 mb-16 max-w-2xl mx-auto">Alcanzarás rápidamente tus objetivos si realizas un entrenamiento de acuerdo a tus necesidades. ¡Únete HOY a nuestro equipo para armar tu paquete totalmente personalizado!</p>
+                <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
+                    <!-- Plan Básico -->
+                    <div class="plan-card bg-white p-8 rounded-xl border border-gray-200 text-center flex flex-col h-full">
+                        <h3 class="text-2xl font-semibold mb-2">BÁSICO</h3>
+                        <p class="text-4xl font-bold brand-green-text mb-4">$65.000 <span class="text-lg font-normal text-gray-500">COP</span></p>
+                        <ul class="text-left space-y-3 mb-8 flex-grow">
+                            <li class="flex items-start">✔️<span class="ml-2">Plan de alimentación básico</span></li>
+                            <li class="flex items-start">✔️<span class="ml-2">Rutina general de ejercicios</span></li>
+                            <li class="flex items-start">✔️<span class="ml-2">Seguimiento mensual</span></li>
+                            <li class="flex items-start">✔️<span class="ml-2">Acceso a comunidad</span></li>
+                        </ul>
+                        <p class="text-gray-500 mb-6 italic">Ideal para empezar hoy mismo.</p>
+                        <a href="https://wa.me/573014197340?text=¡Hola!%20Estoy%20interesado/a%20en%20el%20Plan%20Básico." target="_blank" class="w-full mt-auto bg-gray-200 text-gray-800 font-semibold py-3 px-5 rounded-full hover:bg-gray-300 transition block">Contratar Plan</a>
+                    </div>
+                    <!-- Plan Pro (Destacado) -->
+                    <div class="plan-card bg-white p-8 rounded-xl border-2 border-brand-green text-center relative shadow-xl flex flex-col h-full">
+                        <span class="absolute -top-4 left-1/2 -translate-x-1/2 bg-brand-gradient text-white text-xs font-bold px-4 py-1 rounded-full">MÁS POPULAR</span>
+                        <h3 class="text-2xl font-semibold mb-2">PRO</h3>
+                        <p class="text-4xl font-bold brand-green-text mb-4">$99.000<span class="text-lg font-normal text-gray-500"> COP</span></p>
+                        <ul class="text-left space-y-3 mb-8 flex-grow">
+                            <li class="flex items-start">✔️<span class="ml-2">Kit Détox Fuxión</span></li>
+                            <li class="flex items-start">✔️<span class="ml-2">Plan Alimentación personalizado</span></li>
+                            <li class="flex items-start">✔️<span class="ml-2">Rutina Personalizada, Potenciada con IA</span></li>
+                            <li class="flex items-start">✔️<span class="ml-2">Seguimiento a las medidas y tallas</span></li>
+                            <li class="flex items-start">✔️<span class="ml-2">Soporte prioritario por chat</span></li>
+                            <li class="flex items-start">✔️<span class="ml-2">Seguimiento semanal 1:1</span></li>
+                        </ul>
+                        <p class="text-gray-500 mb-6 italic">Impulsa tu cambio con un plan adaptado a ti.</p>
+                        <a href="https://wa.me/573014197340?text=¡Hola!%20Estoy%20interesado/a%20en%20el%20Plan%20PRO." target="_blank" class="w-full mt-auto bg-brand-gradient hover:bg-brand-gradient-dark text-white font-semibold py-3 px-5 rounded-full transition block">Contratar Plan</a>
+                    </div>
+                    <!-- Plan Elite -->
+                    <div class="plan-card bg-white p-8 rounded-xl border border-gray-200 text-center flex flex-col h-full">
+                        <h3 class="text-2xl font-semibold mb-2">ÉLITE</h3>
+                        <p class="text-4xl font-bold brand-green-text mb-4">$235.000<span class="text-lg font-normal text-gray-500"> COP</span></p>
+                        <ul class="text-left space-y-3 mb-8 flex-grow">
+                             <li class="flex items-start">✔️<span class="ml-2">Todo lo Incluido en el Plan Pro</span></li>
+                             <li class="flex items-start">✔️<span class="ml-2">Kit Détox + ThermoT3 Fuxión</span></li>
+                             <li class="flex items-start">✔️<span class="ml-2">Videollamada semanal personalizada</span></li>
+                             <li class="flex items-start">✔️<span class="ml-2">Soporte 24/7</span></li>
+                             <li class="flex items-start">✔️<span class="ml-2">Recetas y postres exclusivos</span></li>
+                             <li class="flex items-start">✔️<span class="ml-2">Acceso a talleres privados</span></li>
+                        </ul>
+                        <p class="text-gray-500 mb-6 italic">Máximo acompañamiento, resultados sin excusas.</p>
+                        <a href="https://wa.me/573014197340?text=¡Hola!%20Estoy%20interesado/a%20en%20el%20Plan%20ÉLITE." target="_blank" class="w-full mt-auto bg-gray-200 text-gray-800 font-semibold py-3 px-5 rounded-full hover:bg-gray-300 transition block">Contratar Plan</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nuestras Historias Carousel Section -->
+        <section id="historias-preview" class="bg-brand-light">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Nuestras Historias</h2>
+                <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">Inspírate con las transformaciones, recetas y consejos de nuestra comunidad.</p>
+                
+                <!-- Carousel Container -->
+                <div class="relative max-w-3xl mx-auto">
+                    <div id="carousel" class="overflow-hidden rounded-xl shadow-lg">
+                        <div id="carousel-track" class="carousel-track flex">
+                            <!-- Slide 1: Testimonio Ana -->
+                            <div class="w-full flex-shrink-0 p-8 bg-white">
+                                <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop" alt="Foto de Ana" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-green-200 object-cover">
+                                <div class="flex justify-center mb-4">
+                                    <!-- 5 Estrellas -->
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                </div>
+                                <p class="text-gray-600 italic text-lg mb-4">"Recuperé la energía que había perdido y aprendí a disfrutar de la comida saludable. ¡El cambio es real!"</p>
+                                <p class="font-bold brand-green-text">- Ana P.</p>
+                            </div>
+                            <!-- Slide 2: Testimonio Juan -->
+                            <div class="w-full flex-shrink-0 p-8 bg-white">
+                                <img src="https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?q=80&w=1974&auto=format&fit=crop" alt="Foto de Juan" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-green-200 object-cover">
+                                <div class="flex justify-center mb-4">
+                                    <!-- 5 Estrellas -->
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                </div>
+                                <p class="text-gray-600 italic text-lg mb-4">"Pensé que comer sano era aburrido, pero QuiéreteMás me enseñó un mundo nuevo de sabores. ¡Recomendado!"</p>
+                                <p class="font-bold brand-green-text">- Juan D.</p>
+                            </div>
+                            <!-- Slide 3: Testimonio Pedro -->
+                            <div class="w-full flex-shrink-0 p-8 bg-white">
+                                <img src="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=2071&auto=format&fit=crop" alt="Foto de Pedro" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-green-200 object-cover">
+                                <div class="flex justify-center mb-4">
+                                    <!-- 5 Estrellas -->
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                </div>
+                                <p class="text-gray-600 italic text-lg mb-4">"El acompañamiento 1 a 1 fue clave para no rendirme. Sentí el apoyo en cada paso del proceso."</p>
+                                <p class="font-bold brand-green-text">- Pedro G.</p>
+                            </div>
+                            <!-- Slide 4: Testimonio Camilo -->
+                            <div class="w-full flex-shrink-0 p-8 bg-white">
+                                <img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop" alt="Foto de Camilo" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-green-200 object-cover">
+                                <div class="flex justify-center mb-4">
+                                    <!-- 5 Estrellas -->
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                    <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                </div>
+                                <p class="text-gray-600 italic text-lg mb-4">"La herramienta de Coach con IA me ayudó a superar los antojos en los momentos más difíciles. ¡Increíble!"</p>
+                                <p class="font-bold brand-green-text">- Camilo V.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Carousel Controls -->
+                    <button id="prev-btn" class="absolute top-1/2 left-0 -translate-y-1/2 bg-white/50 hover:bg-white rounded-full p-2 transition -ml-4 md:-ml-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <button id="next-btn" class="absolute top-1/2 right-0 -translate-y-1/2 bg-white/50 hover:bg-white rounded-full p-2 transition -mr-4 md:-mr-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                </div>
+
+                <a href="#tienda" class="mt-12 inline-block bg-brand-gradient hover:bg-brand-gradient-dark text-white font-bold py-3 px-8 rounded-full transition text-lg shadow-md">Quiero empezar ahora</a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-10">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 QuiéreteMás. Creado con 💚 para tu bienestar.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="https://web.facebook.com/profile.php?id=100064174358562&locale=es_LA&_rdc=1&_rdr#" target="_blank" class="text-gray-400 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="feather feather-facebook"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+                <a href="https://www.instagram.com/quieretemas.fit/" target="_blank" class="text-gray-400 hover:text-white transition"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-instagram"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- WhatsApp Float Button -->
+    <a href="https://wa.me/573014197340" target="_blank" class="fixed bottom-5 right-5 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition z-50">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99 0-3.903-.52-5.687-1.475L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.447-4.435-9.884-9.888-9.884-5.448 0-9.886 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.608-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01s-.521.074-.794.372c-.272.296-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.626.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+    </a>
+
+    <!-- IMC Modal -->
+    <div id="imc-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 hidden modal-backdrop">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <div id="quiz-container" class="p-8">
+                <!-- Las preguntas del quiz se insertarán aquí -->
+            </div>
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu script
+            document.getElementById('mobile-menu-button').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+            
+            if (!window.jspdf) {
+                console.error("jsPDF library not loaded. PDF functionality will be disabled.");
+            }
+            const { jsPDF } = window.jspdf || {};
+            
+            let userPlanData = {};
+            let quizAnswers = {};
+            let currentQuestionIndex = 0;
+
+            const quizQuestions = [
+                { id: 'body_structure', text: '¿Cómo describirías tus articulaciones (muñecas, tobillos)?', options: {'e': 'Muy delgadas y finas', 'm': 'De tamaño mediano, definidas', 'n': 'Gruesas y robustas'} },
+                { id: 'body_response', text: 'Al hacer ejercicio, ¿cómo responde tu cuerpo?', options: {'e': 'Me cuesta mucho ganar músculo', 'm': 'Gano músculo con facilidad', 'n': 'Gano músculo y grasa fácilmente'} },
+                { id: 'body_shape', text: '¿Qué forma general tiene tu cuerpo?', options: {'e': 'Larga y estilizada', 'm': 'Atlética, hombros anchos', 'n': 'Redondeada y suave'} },
+                { id: 'activity_level', text: '¿Cuál es tu nivel de actividad física semanal?', options: {'sedentary': 'Poco o ninguno (sedentario)', 'light': 'Ligero (1-2 días/semana)', 'moderate': 'Moderado (3-4 días/semana)', 'active': 'Activo (5+ días/semana)'} },
+                { id: 'primary_goal', text: '¿Cuál es tu objetivo principal?', options: {'lose_weight': 'Perder peso', 'gain_muscle': 'Ganar músculo', 'eat_healthier': 'Comer más saludable', 'more_energy': 'Tener más energía'} },
+                { id: 'disliked_food', text: 'Alimentos que no te gustan o no puedes consumir:', type: 'multiple', options: {'dairy': 'Lácteos', 'gluten': 'Gluten', 'seafood': 'Mariscos', 'nuts': 'Frutos secos', 'red_meat': 'Carne roja'} },
+                { id: 'biggest_challenge', text: '¿Cuál es tu mayor desafío?', options: {'cravings': 'Manejar los antojos', 'time': 'Falta de tiempo para cocinar', 'motivation': 'Falta de motivación', 'knowledge': 'No saber qué comer'} }
+            ];
+
+            const imcModal = document.getElementById('imc-modal');
+            const modalContent = document.getElementById('modal-content');
+            const openModalBtns = document.querySelectorAll('[id^="open-imc-modal-btn"]');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const quizContainer = document.getElementById('quiz-container');
+
+            const openModal = function() {
+                currentQuestionIndex = 0;
+                quizAnswers = {};
+                renderQuestion();
+                imcModal.classList.remove('hidden');
+                setTimeout(() => {
+                    imcModal.classList.remove('opacity-0');
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                }, 10);
+            };
+
+            const closeModal = function() {
+                modalContent.classList.add('scale-95', 'opacity-0');
+                imcModal.classList.add('opacity-0');
+                setTimeout(() => imcModal.classList.add('hidden'), 300);
+            };
+
+            openModalBtns.forEach(btn => btn.addEventListener('click', openModal));
+            if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+            if(imcModal) imcModal.addEventListener('click', e => { if (e.target === imcModal) closeModal(); });
+
+            function renderQuestion() {
+                const totalSteps = quizQuestions.length + 1; // +1 for the IMC step
+                const progress = ((currentQuestionIndex) / totalSteps) * 100;
+
+                let contentHtml = `<div class="progress-bar-container"><div class="progress-bar" style="width: ${progress}%"></div></div>`;
+
+                if (currentQuestionIndex < quizQuestions.length) {
+                    const question = quizQuestions[currentQuestionIndex];
+                    let optionsHtml = '';
+                    if (question.type === 'multiple') {
+                        for (const key in question.options) {
+                            optionsHtml += `<label class="flex items-center p-3 border rounded-lg quiz-option"><input type="checkbox" name="${question.id}" value="${key}" class="mr-3 accent-brand-green h-5 w-5">${question.options[key]}</label>`;
+                        }
+                        optionsHtml += `<button id="next-question-btn" class="w-full mt-4 bg-brand-gradient text-white py-3 rounded-lg hover:bg-brand-gradient-dark transition font-bold">Siguiente</button>`;
+                    } else {
+                        for (const key in question.options) {
+                            optionsHtml += `<button data-answer="${key}" data-question-id="${question.id}" class="w-full text-left p-4 border rounded-lg quiz-option">${question.options[key]}</button>`;
+                        }
+                    }
+                    contentHtml += `<h2 class="text-2xl font-bold mb-6">${question.text}</h2><div class="space-y-3">${optionsHtml}</div>`;
+                    quizContainer.innerHTML = contentHtml;
+
+                    if (question.type === 'multiple') {
+                        document.getElementById('next-question-btn').addEventListener('click', handleMultipleAnswer);
+                    } else {
+                        quizContainer.querySelectorAll('.quiz-option').forEach(button => button.addEventListener('click', handleAnswer));
+                    }
+                } else {
+                    renderImcForm(progress);
+                }
+            }
+            
+            function handleAnswer(event) {
+                quizAnswers[event.target.dataset.questionId] = event.target.dataset.answer;
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+
+            function handleMultipleAnswer() {
+                const question = quizQuestions[currentQuestionIndex];
+                const checked = Array.from(document.querySelectorAll(`input[name="${question.id}"]:checked`)).map(el => el.value);
+                quizAnswers[question.id] = checked;
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+
+            function renderImcForm(progress) {
+                quizContainer.innerHTML = `
+                    <div class="progress-bar-container"><div class="progress-bar" style="width: ${progress}%"></div></div>
+                    <h2 class="text-2xl font-bold mb-6">¡Casi listo! Faltan tus medidas</h2>
+                    <form id="imc-form-interactive">
+                        <div class="mb-4"><label for="height-interactive" class="block text-gray-700 font-semibold mb-2">Altura (cm)</label><input type="number" id="height-interactive" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ring-brand-green" required></div>
+                        <div class="mb-6"><label for="weight-interactive" class="block text-gray-700 font-semibold mb-2">Peso (kg)</label><input type="number" id="weight-interactive" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ring-brand-green" required></div>
+                        <button type="submit" class="w-full bg-brand-gradient text-white py-3 rounded-lg hover:bg-brand-gradient-dark transition font-bold">Calcular y Continuar</button>
+                    </form>`;
+                document.getElementById('imc-form-interactive').addEventListener('submit', handleImcSubmit);
+            }
+
+            function handleImcSubmit(event) {
+                event.preventDefault();
+                const height = parseFloat(document.getElementById('height-interactive').value);
+                const weight = parseFloat(document.getElementById('weight-interactive').value);
+                if (height > 0 && weight > 0) {
+                    const imc = (weight / ((height / 100) ** 2)).toFixed(2);
+                    quizAnswers.imc = imc;
+                    quizAnswers.height = height;
+                    quizAnswers.weight = weight;
+                    const bodyTypeAnswers = [quizAnswers.body_structure, quizAnswers.body_response, quizAnswers.body_shape];
+                    const counts = bodyTypeAnswers.reduce((acc, val) => { acc[val] = (acc[val] || 0) + 1; return acc; }, {});
+                    const bodyTypeKey = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+                    const bodyTypes = { e: 'Ectomorfo', m: 'Mesomorfo', n: 'Endomorfo' };
+                    quizAnswers.bodyType = bodyTypes[bodyTypeKey];
+                    renderResultsAndCta();
+                }
+            }
+
+            function renderResultsAndCta() {
+                let category = '', categoryClass = '';
+                const imc = quizAnswers.imc;
+                if (imc < 18.5) { category = 'Bajo Peso'; categoryClass = 'text-blue-600'; } 
+                else if (imc < 24.9) { category = 'Peso Normal'; categoryClass = 'text-green-600'; } 
+                else if (imc < 29.9) { category = 'Sobrepeso'; categoryClass = 'text-orange-500'; } 
+                else { category = 'Obesidad'; categoryClass = 'text-red-600'; }
+                quizAnswers.category = category;
+
+                quizContainer.innerHTML = `
+                    <div class="progress-bar-container"><div class="progress-bar" style="width: 100%"></div></div>
+                    <h2 class="text-2xl font-bold mb-4">Tus Resultados Preliminares</h2>
+                    <div class="text-center bg-brand-light p-6 rounded-lg mb-6">
+                        <p class="text-lg">Tu tipo de cuerpo es: <strong class="brand-green-text">${quizAnswers.bodyType}</strong></p>
+                        <p class="text-lg mt-2">Tu IMC es:</p>
+                        <p class="text-5xl font-bold ${categoryClass}">${imc}</p>
+                        <p class="text-lg font-semibold mt-2 ${categoryClass}">${category}</p>
+                    </div>
+                    <button id="get-free-guide-btn" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-bold">Obtener Guía Gratis</button>
+                `;
+                document.getElementById('get-free-guide-btn').addEventListener('click', renderContactForm);
+            }
+
+            function renderContactForm() {
+                quizContainer.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-4">¡Estás a un Paso!</h2>
+                    <p class="text-center mb-4 text-gray-600">La IA generará tu plan personalizado. Déjanos tus datos para enviártelo y empezar tu transformación.</p>
+                    <form id="pdf-form-interactive">
+                        <div class="mb-4"><label for="pdf-name" class="block text-gray-700 font-semibold mb-2">Tu Nombre</label><input type="text" id="pdf-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ring-brand-green" required></div>
+                        <div class="mb-4"><label for="pdf-email" class="block text-gray-700 font-semibold mb-2">Tu Correo Electrónico</label><input type="email" id="pdf-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ring-brand-green" required></div>
+                        <div class="mb-4"><label for="pdf-whatsapp" class="block text-gray-700 font-semibold mb-2">WhatsApp (Indicativo + Número)</label><input type="tel" id="pdf-whatsapp" placeholder="+57 3001234567" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ring-brand-green" required></div>
+                        <button type="submit" id="generate-pdf-btn-interactive" class="w-full bg-brand-gradient text-white py-3 rounded-lg hover:bg-brand-gradient-dark transition font-bold flex items-center justify-center gap-2">✨ Generar y Descargar PDF</button>
+                    </form>
+                    <div id="pdf-generation-result-interactive" class="mt-6"></div>`;
+                document.getElementById('pdf-form-interactive').addEventListener('submit', handlePdfSubmit);
+            }
+
+            function handlePdfSubmit(event) {
+                event.preventDefault();
+                const resultContainer = document.getElementById('pdf-generation-result-interactive');
+                resultContainer.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
+                quizAnswers.name = document.getElementById('pdf-name').value;
+                quizAnswers.email = document.getElementById('pdf-email').value;
+                quizAnswers.whatsapp = document.getElementById('pdf-whatsapp').value;
+
+                const goalQuestion = quizQuestions.find(q => q.id === 'primary_goal');
+                const goalText = goalQuestion ? goalQuestion.options[quizAnswers.primary_goal] : quizAnswers.primary_goal;
+                
+                const activityQuestion = quizQuestions.find(q => q.id === 'activity_level');
+                const activityText = activityQuestion ? activityQuestion.options[quizAnswers.activity_level] : quizAnswers.activity_level;
+
+                const challengeQuestion = quizQuestions.find(q => q.id === 'biggest_challenge');
+                const challengeText = challengeQuestion ? challengeQuestion.options[quizAnswers.biggest_challenge] : quizAnswers.biggest_challenge;
+
+                // --- Save to Google Sheets ---
+                const scriptURL = "https://script.google.com/macros/s/AKfycbzQQCPUtzzjy-qtzGVf24Gjj8QlUbkYBL9OnjsFnqmjhGoV3ppzoJyFyC0RkfBQaQUoIQ/exec";
+                const formDataForSheet = {
+                    name: quizAnswers.name,
+                    email: quizAnswers.email,
+                    whatsapp: quizAnswers.whatsapp,
+                    imc: quizAnswers.imc,
+                    bodyType: quizAnswers.bodyType,
+                    goal: goalText,
+                    activityLevel: activityText,
+                    biggestChallenge: challengeText,
+                    height: quizAnswers.height,
+                    weight: quizAnswers.weight
+                };
+                fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formDataForSheet)
+                })
+                .then(response => console.log('Datos enviados a Google Sheets'))
+                .catch(error => console.error('Error al enviar datos a Google Sheets:', error.message));
+
+                // --- Generate PDF ---
+                const prompt = `Crea un plan de alimentacion para 5 dias, todos los dias, que sea balanceado para el tipo de cuerpo ${quizAnswers.bodyType}, con el objetivo de ${goalText}. Asegurate que la preparacion sea facil y que cada comida sea deliciosa. Es mandatorio y crucial que proveas una sugerencia de comida para cada uno de los 5 dias y para cada una de las 3 comidas (Desayuno, Almuerzo, Cena). No se aceptan respuestas incompletas o que digan 'Dia libre'. Devuelve la respuesta como un objeto JSON con la estructura: {"Lunes": {"Desayuno": "...", "Almuerzo": "...", "Cena": "..."}, "Martes": {...}, ...}. No incluyas nada más que el objeto JSON en tu respuesta.`;
+
+                callGeminiAPI(prompt, resultContainer, function(data) {
+                    try {
+                        userPlanData = JSON.parse(data);
+                        if(jsPDF) {
+                            generatePDF();
+                            resultContainer.innerHTML = `<p class="text-green-600 text-center font-semibold">¡Tu PDF ha sido generado! Revisa tus descargas.</p>`;
+                            setTimeout(closeModal, 1500);
+                        } else {
+                             resultContainer.innerHTML = `<p class="text-red-500 text-center">La librería para generar PDF no se cargó correctamente.</p>`;
+                        }
+                    } catch (e) {
+                        console.error("Error al parsear el plan de comidas JSON:", e);
+                        resultContainer.innerHTML = `<p class="text-red-500 text-center">Hubo un error al procesar el plan de la IA. Por favor, intenta de nuevo.</p>`;
+                    }
+                });
+            }
+
+            function generatePDF() {
+                const doc = new jsPDF({ orientation: 'landscape', format: 'a4' });
+                doc.setFont("Helvetica", "normal");
+
+                // Title
+                doc.setFontSize(22);
+                doc.setTextColor(0, 176, 80);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Guia QuiereteMas", 148.5, 20, { align: 'center' });
+
+                // Welcome Message
+                doc.setFontSize(12);
+                doc.setTextColor(51, 51, 51);
+                doc.setFont("Helvetica", "normal");
+                const welcomeText = `¡Hola, ${quizAnswers.name}! Estas a un solo paso de mejorar tu salud y ¡estamos aqui para ayudarte! Hemos creado esta guia inicial basada en tus respuestas.`;
+                const splitWelcome = doc.splitTextToSize(welcomeText, 265);
+                doc.text(splitWelcome, 15, 35);
+                
+                // Body Type and IMC Explanation with color
+                let imcColor;
+                if (quizAnswers.category === 'Peso Normal') {
+                    imcColor = [34, 197, 94]; // green-500
+                } else if (quizAnswers.category === 'Sobrepeso') {
+                    imcColor = [249, 115, 22]; // orange-500
+                } else {
+                    imcColor = [239, 68, 68]; // red-500
+                }
+                
+                doc.setFont("Helvetica", "bold");
+                doc.setFontSize(12);
+                doc.setTextColor(imcColor[0], imcColor[1], imcColor[2]);
+                doc.text(`Tu tipo de cuerpo es ${quizAnswers.bodyType} y tu IMC es ${quizAnswers.imc} (${quizAnswers.category}).`, 15, 52);
+                doc.setTextColor(51, 51, 51);
+                doc.setFont("Helvetica", "normal");
+                doc.setFontSize(11);
+
+                let careText = '';
+                switch (quizAnswers.category) {
+                    case 'Bajo Peso': careText = "Esto significa que nos enfocaremos en un plan nutritivo para ayudarte a ganar masa muscular y energia de forma saludable."; break;
+                    case 'Peso Normal': careText = "¡Felicidades! Esto es genial. Nuestro plan se centrara en mantener este equilibrio, optimizar tu nutricion y potenciar tu vitalidad."; break;
+                    case 'Sobrepeso': careText = "Este es un excelente punto de partida para enfocarnos en la recomposicion corporal, priorizando alimentos que te den saciedad y energia."; break;
+                    case 'Obesidad': careText = "Este es el inicio de una transformacion increible. Nos enfocaremos en habitos sostenibles y un cuidado integral para alcanzar tus metas."; break;
+                }
+                const splitCareText = doc.splitTextToSize(careText, 265);
+                doc.text(splitCareText, 15, 59);
+                
+                // Plan Title
+                doc.setFontSize(16);
+                doc.setTextColor(0, 176, 80);
+                doc.setFont("Helvetica", "bold");
+                doc.text("Tu Plan de Comidas para 5 Dias", 15, 82);
+                
+                // Table
+                const tableWidth = 297 * 0.95;
+                const margin = (297 - tableWidth) / 2;
+                const yStart = 92;
+                const xStart = margin;
+                const rowHeaderWidth = 30;
+                const colWidth = (tableWidth - rowHeaderWidth) / 5;
+                const rowHeight = 30;
+                const days = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes"];
+                const meals = ["Desayuno", "Almuerzo", "Cena"];
+
+                doc.setFontSize(11);
+                doc.setFont("Helvetica", "bold");
+                let currentX = xStart + rowHeaderWidth;
+                days.forEach(day => {
+                    doc.text(day, currentX + colWidth / 2, yStart - 5, { align: "center" });
+                    currentX += colWidth;
+                });
+
+                let y = yStart;
+                meals.forEach(meal => {
+                    doc.setFontSize(10);
+                    doc.setFont("Helvetica", "bold");
+                    doc.text(meal, xStart + 2, y + rowHeight / 2, { baseline: 'middle' });
+                    
+                    let cellX = xStart + rowHeaderWidth;
+                    doc.setFont("Helvetica", "normal");
+                    doc.setFontSize(9);
+                    days.forEach(day => {
+                        const mealText = userPlanData[day]?.[meal] || "No especificado";
+                        const splitText = doc.splitTextToSize(mealText, colWidth - 4);
+                        doc.text(splitText, cellX + 2, y + 5);
+                        cellX += colWidth;
+                    });
+                    y += rowHeight;
+                });
+
+                // Footer & Disclaimer
+                const finalY = doc.internal.pageSize.height - 25;
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.setFont("Helvetica", "normal");
+                const disclaimer = "*Esta es una guia de referencia y no reemplaza un diagnostico o consulta medica. Si sientes algun tipo de malestar, es importante que consultes a un profesional de la salud.";
+                const splitDisclaimer = doc.splitTextToSize(disclaimer, 260);
+                doc.text(splitDisclaimer, 148.5, finalY, { align: 'center' });
+
+                doc.setFontSize(12);
+                doc.setTextColor(0, 176, 80);
+                doc.setFont("Helvetica", "bold");
+                doc.text("¡Iniciemos, estamos a un solo paso!", 148.5, finalY + 10, { align: 'center' });
+                doc.setFontSize(10);
+                doc.setTextColor(51, 51, 51);
+                doc.setFont("Helvetica", "normal");
+                doc.text("Instagram: @Quieretemas.fit | WhatsApp: +57 3014197340", 148.5, finalY + 17, { align: 'center' });
+
+                doc.save('Guia_QuiereteMas.pdf');
+            }
+
+            // --- Other AI Features ---
+            const generateRecipeBtn = document.getElementById('generate-recipe-btn');
+            if(generateRecipeBtn) {
+                generateRecipeBtn.addEventListener('click', function() {
+                    const ingredients = document.getElementById('recipe-ingredients').value;
+                    if (ingredients.trim() === '') { alert('Por favor, introduce al menos un ingrediente.'); return; }
+                    const container = document.getElementById('recipe-result-container');
+                    container.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
+                    const prompt = `Eres un chef creativo especializado en comida saludable y deliciosa. Crea una receta fácil usando los siguientes ingredientes: ${ingredients}. La receta debe incluir: 1. Un nombre atractivo. 2. Lista de ingredientes. 3. Instrucciones paso a paso. Formatea la respuesta en HTML simple dentro de un único div con clases "bg-white p-8 rounded-xl shadow-lg". Usa etiquetas <h4>, <p>, <ul>, <li>, y <strong>. No incluyas nada más que ese div.`;
+                    callGeminiAPI(prompt, container);
+                });
+            }
+
+            const getCoachAdviceBtn = document.getElementById('get-coach-advice-btn');
+            if(getCoachAdviceBtn) {
+                getCoachAdviceBtn.addEventListener('click', function() {
+                    const userInput = document.getElementById('coach-input').value;
+                    if (userInput.trim() === '') { alert('Por favor, describe cómo te sientes o cuál es tu desafío.'); return; }
+                    const container = document.getElementById('coach-result-container');
+                    container.innerHTML = '<div class="flex justify-center"><div class="loader"></div></div>';
+                    const prompt = `Eres un 'Mindful Coach' compasivo y motivador. Tu objetivo es dar consejos cortos y prácticos. Un usuario describe su situación: '${userInput}'. Proporciona una respuesta de 2 a 3 frases cortas que sea alentadora y ofrezca una acción simple. Formatea la respuesta en HTML simple dentro de un div con clases "bg-green-100 border-l-4 border-green-500 text-green-700 p-4" y usa solo etiquetas <p> y <strong>. No incluyas nada más que ese div.`;
+                    callGeminiAPI(prompt, container);
+                });
+            }
+            
+            // --- Carousel Logic ---
+            const track = document.getElementById('carousel-track');
+            if (track) {
+                const prevBtn = document.getElementById('prev-btn');
+                const nextBtn = document.getElementById('next-btn');
+                const slides = Array.from(track.children);
+                let slideWidth = slides.length > 0 ? slides[0].getBoundingClientRect().width : 0;
+                let currentIndex = 0;
+
+                const updateCarousel = () => {
+                    track.style.transform = 'translateX(-' + slideWidth * currentIndex + 'px)';
+                }
+                
+                const handleResize = () => {
+                    slideWidth = slides.length > 0 ? slides[0].getBoundingClientRect().width : 0;
+                    updateCarousel();
+                }
+
+                nextBtn.addEventListener('click', () => {
+                    currentIndex++;
+                    if (currentIndex >= slides.length) {
+                        currentIndex = 0;
+                    }
+                    updateCarousel();
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    currentIndex--;
+                    if (currentIndex < 0) {
+                        currentIndex = slides.length - 1;
+                    }
+                    updateCarousel();
+                });
+                
+                window.addEventListener('resize', handleResize);
+                
+                // Auto-slide functionality
+                setInterval(() => {
+                    nextBtn.click();
+                }, 5000); // Change slide every 5 seconds
+            }
+
+
+            // --- Reusable Gemini API Call Function ---
+            function callGeminiAPI(prompt, resultContainer, callback) {
+                const serverlessApiUrl = '/.netlify/functions/callGemini'; 
+                
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
+
+                fetch(serverlessApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        return response.json().then(function(errorBody) {
+                            throw new Error('Respuesta de red no fue exitosa. Estatus: ' + response.status + '. Mensaje: ' + (errorBody.error ? errorBody.error.message : 'Sin mensaje detallado.'));
+                        }).catch(function() {
+                            throw new Error('Respuesta de red no fue exitosa. Estatus: ' + response.status);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+                        let textResponse = data.candidates[0].content.parts[0].text;
+                        textResponse = textResponse.replace(/```(html|json)?|```/g, '').trim();
+                        
+                        if (callback) {
+                            callback(textResponse);
+                        }
+                        if (resultContainer) {
+                            resultContainer.innerHTML = textResponse;
+                        }
+                    } else {
+                        console.error("Respuesta de la API recibida, pero sin contenido válido:", data);
+                        throw new Error('La respuesta de la API no tiene el formato esperado o el contenido fue bloqueado. Esto puede ocurrir por las políticas de seguridad de la IA.');
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error detallado en la llamada a la API:', error);
+                    const errorMessage = `<p class="text-red-500 text-center">Hubo un error al generar la respuesta. Por favor, revisa que la API Key sea correcta y no tenga restricciones, e intenta de nuevo. (Detalle: ${error.message})</p>`;
+                    if (resultContainer) {
+                        resultContainer.innerHTML = errorMessage;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
