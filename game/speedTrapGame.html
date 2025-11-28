@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SkillArena · SpeedTrap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* ====== RESET SENCILLO ====== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-main: #020617;
+      --bg-card: rgba(15, 23, 42, 0.95);
+      --border-subtle: #1f2937;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent-primary: #6366f1;
+      --accent-secondary: #34d399;
+      --accent-outline: #f97373;
+      --neon-red: #ff4d6d;
+      --neon-green: #4ade80;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 40%, #000 100%);
+      color: var(--text-main);
+    }
+
+    /* ====== LAYOUT GENERAL (MISMO QUE EMOJI LOGIC) ====== */
+    .page {
+      min-height: 100vh;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .page-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .page-header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+
+    .page-header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .header-rule {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: var(--accent-secondary);
+    }
+
+    .header-info {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-info span {
+      font-weight: 600;
+      color: var(--accent-secondary);
+    }
+
+    @media (min-width: 768px) {
+      .page-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+    }
+
+    .layout {
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (min-width: 900px) {
+      .layout {
+        grid-template-columns: 2fr 1.1fr;
+      }
+    }
+
+    /* ====== CARDS ====== */
+    .card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .board-card {
+      margin-bottom: 12px;
+    }
+
+    /* ====== ÁREA DE JUEGO ====== */
+    .game-stage {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 220px;
+    }
+
+    .color-word-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 90px;
+    }
+
+    #color-word {
+      font-size: clamp(2.4rem, 4vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .round-hint {
+      margin-top: 4px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .balls-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      padding-top: 12px;
+      min-height: 110px;
+    }
+
+    .color-ball {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      cursor: pointer;
+      background: #111827;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      transition:
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        opacity 0.12s ease;
+    }
+
+    .color-ball:hover {
+      transform: scale(1.06) translateY(-1px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.8);
+    }
+
+    .color-ball.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ====== CONTROLES ====== */
+    .controls-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .controls-row {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .control-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    select {
+      background: #020617;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      padding: 6px 10px;
+      color: var(--text-main);
+      font-size: 0.8rem;
+    }
+
+    select:focus {
+      outline: 2px solid var(--accent-primary);
+      outline-offset: 1px;
+    }
+
+    .buttons-row {
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition:
+        background 0.12s ease,
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease,
+        color 0.12s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 12px 25px rgba(79, 70, 229, 0.5);
+    }
+
+    .btn-primary:hover {
+      background: #818cf8;
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ====== PANEL DERECHO ====== */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stats-card h2 {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stats-list {
+      display: grid;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-item dt {
+      color: var(--text-muted);
+    }
+
+    .stat-item dd {
+      font-weight: 600;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    #time-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #3b82f6;
+      text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+    }
+
+    .stat-good {
+      color: var(--neon-green);
+    }
+
+    .stat-bad {
+      color: var(--neon-red);
+    }
+
+    .status-text {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ====== FOOTER ====== */
+    .page-footer {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .page-footer p + p {
+      margin-top: 4px;
+    }
+
+    /* ====== MODAL DE VICTORIA (MISMO ESTILO) ====== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+
+    .modal {
+      background: #020617;
+      border-radius: 18px;
+      border: 1px solid var(--accent-primary);
+      padding: 22px 18px 18px;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+      text-align: center;
+    }
+
+    .modal h2 {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    .modal p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .modal-stats {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+
+    .modal-stats span.label {
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .modal-secondary {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <div>
+        <h1>SkillArena · SpeedTrap</h1>
+        <p>ColorTrap Reaction: lectura vs impulso. Pura habilidad cognitiva, cero azar.</p>
+        <p class="header-rule">
+          Ganas al llegar a 10 aciertos. Si se acaba el tiempo o haces clic en la bola equivocada, sumas error.
+        </p>
+      </div>
+      <div class="header-info">
+        <p>Dificultad: <span id="difficulty-label">Beginner</span></p>
+        <p>Modo: <span>Reacción · Colores</span></p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- IZQUIERDA: JUEGO + CONTROLES -->
+      <section>
+        <div class="card board-card">
+          <div class="game-stage">
+            <div class="color-word-wrapper">
+              <span id="color-word"></span>
+            </div>
+            <p id="round-hint" class="round-hint">Pulsa "Iniciar partida" para comenzar.</p>
+            <div id="balls-row" class="balls-row"></div>
+          </div>
+        </div>
+
+        <div class="card controls-card">
+          <div class="controls-row">
+            <div class="control-group">
+              <p class="control-label">Dificultad</p>
+              <select id="difficulty-select">
+                <option value="beginner">Beginner (2 bolas · 2.0 s)</option>
+                <option value="pro">Pro (3 bolas · 1.7 s)</option>
+                <option value="master">Master (4 bolas · 1.3 s)</option>
+              </select>
+            </div>
+            <div class="control-group buttons-row">
+              <p class="control-label">Partida</p>
+              <button id="start-btn" class="btn btn-primary">🎯 Iniciar partida</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DERECHA: STATS -->
+      <aside class="side-panel">
+        <div class="card stats-card">
+          <h2>📊 Estadísticas</h2>
+          <dl class="stats-list">
+            <div class="stat-item">
+              <dt>Tiempo</dt>
+              <dd id="time-value">00:00</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Puntos</dt>
+              <dd id="score-value" class="stat-good">0 / 10</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Errores</dt>
+              <dd id="errors-value" class="stat-bad">0</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Promedio reacción</dt>
+              <dd id="avg-reaction-value">–</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Última reacción</dt>
+              <dd id="last-reaction-value">–</dd>
+            </div>
+          </dl>
+          <p id="status-value" class="status-text">Listo para empezar.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="page-footer">
+      <p>&copy; <span id="year"></span> SkillArena · SpeedTrap.</p>
+    </footer>
+  </div>
+
+  <!-- MODAL "LO LOGRASTE" -->
+  <div id="win-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2>Lo lograste 🎉</h2>
+      <p>Buen trabajo. Aquí están tus stats de esta partida:</p>
+      <div class="modal-stats">
+        <div><span class="label">Tiempo total:</span><span id="win-time-value">00:00</span></div>
+        <div><span class="label">Promedio reacción:</span><span id="win-avg-value">0 ms</span></div>
+        <div><span class="label">Mejor reacción:</span><span id="win-best-value">0 ms</span></div>
+        <div><span class="label">Peor reacción:</span><span id="win-worst-value">0 ms</span></div>
+        <div><span class="label">Errores:</span><span id="win-errors-value">0</span></div>
+      </div>
+      <button id="win-register-btn" class="btn btn-primary modal-btn">Registrar</button>
+      <div id="win-close-btn" class="modal-secondary">Cerrar</div>
+    </div>
+  </div>
+
+  <script>
+    // ====== CONFIGURACIÓN COLORES (PRIMARIOS Y SECUNDARIOS) ======
+    const COLORS = [
+      { key: "red",    name: "ROJO",     hex: "#ff0000" },
+      { key: "yellow", name: "AMARILLO", hex: "#ffd500" },
+      { key: "orange", name: "NARANJA",  hex: "#ff7a00" },
+      { key: "green",  name: "VERDE",    hex: "#00c851" },
+      { key: "blue",   name: "AZUL",     hex: "#007bff" },
+      { key: "purple", name: "MORADO",   hex: "#8a2be2" }
+    ];
+
+    // ====== DIFICULTADES ======
+    const difficulties = {
+      beginner: {
+        label: "Beginner",
+        balls: 2,
+        seriesMs: 2000
+      },
+      pro: {
+        label: "Pro",
+        balls: 3,
+        seriesMs: 1700
+      },
+      master: {
+        label: "Master",
+        balls: 4,
+        seriesMs: 1300
+      }
+    };
+
+    // Mensajes cortos para la pista bajo la palabra
+    const roundMessages = [
+      "Lee la palabra, no el color.",
+      "Primero piensa, luego haz clic.",
+      "Tu impulso quiere fallar, tu foco no.",
+      "Ignora el color del texto.",
+      "Respira, mira, decide rápido."
+    ];
+
+    // ====== DOM ELEMENTS ======
+    let difficultySelect,
+        difficultyLabel,
+        startBtn,
+        colorWordEl,
+        ballsRowEl,
+        roundHintEl,
+        scoreEl,
+        errorsEl,
+        avgReactionEl,
+        lastReactionEl,
+        timeEl,
+        statusEl,
+        yearEl,
+        winModalEl,
+        winTimeEl,
+        winAvgEl,
+        winBestEl,
+        winWorstEl,
+        winErrorsEl,
+        winRegisterBtn,
+        winCloseBtn;
+
+    // ====== ESTADO ======
+    let currentDifficultyKey = "beginner";
+    let isRunning = false;
+    let roundActive = false;
+    let roundStartTime = null;
+    let roundTimeoutId = null;
+    let timerId = null;
+    let timeElapsed = 0;
+
+    let score = 0;
+    let errors = 0;
+    let reactionTimes = [];
+    let previousRound = null;
+
+    const TARGET_POINTS = 10;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      difficultySelect = document.getElementById("difficulty-select");
+      difficultyLabel = document.getElementById("difficulty-label");
+      startBtn = document.getElementById("start-btn");
+      colorWordEl = document.getElementById("color-word");
+      ballsRowEl = document.getElementById("balls-row");
+      roundHintEl = document.getElementById("round-hint");
+
+      scoreEl = document.getElementById("score-value");
+      errorsEl = document.getElementById("errors-value");
+      avgReactionEl = document.getElementById("avg-reaction-value");
+      lastReactionEl = document.getElementById("last-reaction-value");
+      timeEl = document.getElementById("time-value");
+      statusEl = document.getElementById("status-value");
+      yearEl = document.getElementById("year");
+
+      winModalEl = document.getElementById("win-modal");
+      winTimeEl = document.getElementById("win-time-value");
+      winAvgEl = document.getElementById("win-avg-value");
+      winBestEl = document.getElementById("win-best-value");
+      winWorstEl = document.getElementById("win-worst-value");
+      winErrorsEl = document.getElementById("win-errors-value");
+      winRegisterBtn = document.getElementById("win-register-btn");
+      winCloseBtn = document.getElementById("win-close-btn");
+
+      if (yearEl) yearEl.textContent = new Date().getFullYear().toString();
+
+      attachEvents();
+      setDifficulty(currentDifficultyKey);
+      updateStatsUI();
+    });
+
+    function attachEvents() {
+      difficultySelect.addEventListener("change", () => {
+        const key = difficultySelect.value;
+        if (isRunning) return; // no cambiar en medio de partida
+        setDifficulty(key);
+      });
+
+      startBtn.addEventListener("click", () => {
+        if (!isRunning) {
+          startGame();
+        }
+      });
+
+      if (winRegisterBtn) {
+        winRegisterBtn.addEventListener("click", () => {
+          alert("Registro de partida pendiente de integrar con SkillArena 😉");
+          hideWinModal();
+        });
+      }
+
+      if (winCloseBtn) {
+        winCloseBtn.addEventListener("click", hideWinModal);
+      }
+    }
+
+    // ====== HELPERS ======
+    function randomChoice(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const s = (seconds % 60).toString().padStart(2, "0");
+      return m + ":" + s;
+    }
+
+    // ====== DIFICULTAD ======
+    function setDifficulty(key) {
+      currentDifficultyKey = key;
+      const diff = difficulties[key];
+      difficultyLabel.textContent = diff.label;
+      statusEl.textContent = `Listo para empezar. Tiempo por serie: ${(diff.seriesMs / 1000).toFixed(1)} s.`;
+    }
+
+    // ====== ESTADO Y STATS ======
+    function resetGameState() {
+      clearRoundTimer();
+      clearTimer();
+      isRunning = false;
+      roundActive = false;
+      roundStartTime = null;
+      previousRound = null;
+      timeElapsed = 0;
+      score = 0;
+      errors = 0;
+      reactionTimes = [];
+      colorWordEl.textContent = "";
+      ballsRowEl.innerHTML = "";
+      roundHintEl.textContent = 'Pulsa "Iniciar partida" para comenzar.';
+      updateStatsUI();
+    }
+
+    function updateStatsUI() {
+      scoreEl.textContent = `${score} / ${TARGET_POINTS}`;
+      errorsEl.textContent = errors.toString();
+      timeEl.textContent = formatTime(timeElapsed);
+
+      if (reactionTimes.length === 0) {
+        avgReactionEl.textContent = "–";
+        lastReactionEl.textContent = "–";
+      } else {
+        const sum = reactionTimes.reduce((acc, v) => acc + v, 0);
+        const avg = Math.round(sum / reactionTimes.length);
+        const last = Math.round(reactionTimes[reactionTimes.length - 1]);
+        avgReactionEl.textContent = `${avg} ms`;
+        lastReactionEl.textContent = `${last} ms`;
+      }
+    }
+
+    function clearRoundTimer() {
+      clearTimeout(roundTimeoutId);
+      roundTimeoutId = null;
+    }
+
+    function clearTimer() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    // ====== RONDAS ======
+    function generateRoundConfig() {
+      const diff = difficulties[currentDifficultyKey];
+      const maxTries = 30;
+      let candidate = null;
+
+      for (let attempt = 0; attempt < maxTries; attempt++) {
+        // 1. Color objetivo (palabra)
+        const targetColor = randomChoice(COLORS);
+        if (previousRound && targetColor.key === previousRound.targetKey) {
+          continue;
+        }
+
+        // 2. Color visual distinto
+        const wordColorOptions = COLORS.filter(c => c.key !== targetColor.key);
+        let visualColor = randomChoice(wordColorOptions);
+        if (previousRound && visualColor.key === previousRound.wordColorKey) {
+          const others = wordColorOptions.filter(c => c.key !== previousRound.wordColorKey);
+          if (others.length > 0) visualColor = randomChoice(others);
+        }
+
+        // 3. Colores de bolas
+        const ballsColors = [];
+        ballsColors.push(targetColor.key); // objetivo
+
+        const distractorPool = COLORS.filter(c => c.key !== targetColor.key);
+        while (ballsColors.length < diff.balls && distractorPool.length > 0) {
+          const idx = Math.floor(Math.random() * distractorPool.length);
+          const chosen = distractorPool.splice(idx, 1)[0];
+          ballsColors.push(chosen.key);
+        }
+
+        // 4. Barajar
+        for (let i = ballsColors.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [ballsColors[i], ballsColors[j]] = [ballsColors[j], ballsColors[i]];
+        }
+
+        const targetIndex = ballsColors.indexOf(targetColor.key);
+
+        candidate = {
+          targetKey: targetColor.key,
+          targetName: targetColor.name,
+          wordColorKey: visualColor.key,
+          wordColorHex: visualColor.hex,
+          ballsColors,
+          targetIndex
+        };
+
+        if (previousRound) {
+          const sameTargetIndex = candidate.targetIndex === previousRound.targetIndex;
+          const samePattern = candidate.ballsColors.join("-") === previousRound.ballsColors.join("-");
+          const sameWordCombo =
+            candidate.targetKey === previousRound.targetKey &&
+            candidate.wordColorKey === previousRound.wordColorKey;
+
+          if (sameTargetIndex || samePattern || sameWordCombo) {
+            continue;
+          }
+        }
+
+        break;
+      }
+
+      return candidate;
+    }
+
+    function renderRound(roundConfig) {
+      previousRound = roundConfig;
+      roundActive = true;
+      roundStartTime = performance.now();
+
+      const target = COLORS.find(c => c.key === roundConfig.targetKey);
+      colorWordEl.textContent = target.name;
+      colorWordEl.style.color = roundConfig.wordColorHex;
+
+      roundHintEl.textContent = randomChoice(roundMessages);
+
+      ballsRowEl.innerHTML = "";
+      roundConfig.ballsColors.forEach((key, index) => {
+        const colorInfo = COLORS.find(c => c.key === key);
+        const ball = document.createElement("div");
+        ball.className = "color-ball";
+        ball.style.backgroundColor = colorInfo.hex;
+        ball.dataset.index = index.toString();
+        ball.addEventListener("click", () => handleBallClick(index, roundConfig));
+        ballsRowEl.appendChild(ball);
+      });
+    }
+
+    function disableBalls() {
+      const balls = ballsRowEl.querySelectorAll(".color-ball");
+      balls.forEach(ball => ball.classList.add("disabled"));
+    }
+
+    // ====== FLUJO DE PARTIDA ======
+    function startGame() {
+      resetGameState();
+      isRunning = true;
+      const diff = difficulties[currentDifficultyKey];
+
+      startBtn.textContent = "🔁 Reiniciar";
+      startBtn.disabled = true; // se habilita al terminar
+      statusEl.textContent = `En juego. Tiempo por serie: ${(diff.seriesMs / 1000).toFixed(1)} s.`;
+
+      timerId = setInterval(() => {
+        timeElapsed++;
+        updateStatsUI();
+      }, 1000);
+
+      startNextRound();
+    }
+
+    function startNextRound() {
+      if (!isRunning) return;
+      const diff = difficulties[currentDifficultyKey];
+      const roundConfig = generateRoundConfig();
+      renderRound(roundConfig);
+
+      clearRoundTimer();
+      roundTimeoutId = setTimeout(() => {
+        handleRoundTimeout(roundConfig);
+      }, diff.seriesMs);
+    }
+
+    function handleBallClick(index, roundConfig) {
+      if (!isRunning || !roundActive) return;
+
+      roundActive = false;
+      clearRoundTimer();
+      disableBalls();
+
+      const now = performance.now();
+      const reaction = now - roundStartTime;
+
+      if (index === roundConfig.targetIndex) {
+        score = Math.min(TARGET_POINTS, score + 1);
+        reactionTimes.push(reaction);
+        updateStatsUI();
+
+        if (score >= TARGET_POINTS) {
+          endGame();
+        } else {
+          statusEl.textContent = `Acierto. Reacción: ${Math.round(reaction)} ms.`;
+          setTimeout(startNextRound, 300);
+        }
+      } else {
+        errors += 1;
+        if (score > 0) score -= 1;
+        updateStatsUI();
+        statusEl.textContent = "❌ Color incorrecto. Manda la palabra, no el color del texto.";
+        setTimeout(startNextRound, 300);
+      }
+    }
+
+    function handleRoundTimeout(roundConfig) {
+      if (!isRunning || !roundActive) return;
+      roundActive = false;
+      disableBalls();
+
+      errors += 1;
+      updateStatsUI();
+      statusEl.textContent = "⏱ Se acabó el tiempo. Llega un poco antes en la siguiente.";
+      setTimeout(startNextRound, 300);
+    }
+
+    function endGame() {
+      isRunning = false;
+      roundActive = false;
+      clearRoundTimer();
+      clearTimer();
+      startBtn.disabled = false;
+
+      statusEl.textContent = "Partida finalizada. Puedes volver a jugar cuando quieras.";
+
+      if (!reactionTimes.length) {
+        showWinModal(0, 0, 0, 0, errors);
+        return;
+      }
+
+      const sum = reactionTimes.reduce((acc, v) => acc + v, 0);
+      const avg = Math.round(sum / reactionTimes.length);
+      const best = Math.round(Math.min(...reactionTimes));
+      const worst = Math.round(Math.max(...reactionTimes));
+
+      showWinModal(timeElapsed, avg, best, worst, errors);
+    }
+
+    // ====== MODAL ======
+    function showWinModal(timeSeconds, avgMs, bestMs, worstMs, errCount) {
+      winTimeEl.textContent = formatTime(timeSeconds);
+      winAvgEl.textContent = avgMs ? `${avgMs} ms` : "–";
+      winBestEl.textContent = bestMs ? `${bestMs} ms` : "–";
+      winWorstEl.textContent = worstMs ? `${worstMs} ms` : "–";
+      winErrorsEl.textContent = errCount.toString();
+      winModalEl.classList.remove("hidden");
+    }
+
+    function hideWinModal() {
+      winModalEl.classList.add("hidden");
+    }
+  </script>
+</body>
+</html>
