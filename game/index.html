@@ -174,6 +174,116 @@
       box-shadow: 0 0 26px rgba(255, 106, 0, 0.6);
     }
 
+    /* ====== BOTÓN HAMBURGUESA JUGAR ====== */
+
+    .hamburger {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      width: 38px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+      margin-left: 10px;
+      transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .hamburger-line {
+      width: 18px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #FF6A00, #8C4DFF);
+    }
+
+    .hamburger:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 0 14px rgba(140, 77, 255, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .hamburger.is-open {
+      box-shadow: 0 0 18px rgba(255, 106, 0, 0.7);
+      background: rgba(0, 0, 0, 0.9);
+    }
+
+    /* Menú de juegos */
+
+    .game-menu {
+      position: fixed;
+      top: 64px;
+      right: 20px;
+      width: 230px;
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at top left, rgba(140, 77, 255, 0.6), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(255, 106, 0, 0.55), transparent 70%),
+        #050505;
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 12px 14px 10px;
+      font-size: 0.85rem;
+      color: var(--color-text);
+      opacity: 0;
+      transform: translateY(-8px);
+      pointer-events: none;
+      transition: opacity var(--transition-fast), transform var(--transition-fast);
+      z-index: 30;
+    }
+
+    .game-menu.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .game-menu-header {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--color-muted);
+      margin-bottom: 8px;
+    }
+
+    .game-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 9px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+      font-size: 0.84rem;
+    }
+
+    .game-menu-item span.icon {
+      font-size: 1rem;
+    }
+
+    .game-menu-item:last-child {
+      margin-bottom: 2px;
+    }
+
+    .game-menu-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.28);
+      transform: translateY(-1px);
+    }
+
+    .game-menu-footnote {
+      font-size: 0.7rem;
+      color: var(--color-muted);
+      margin-top: 4px;
+      padding-left: 2px;
+    }
+
     /* ===============================
        HERO
        =============================== */
@@ -223,7 +333,7 @@
       font-size: 1rem;
       color: var(--color-muted);
       max-width: 34rem;
-      margin-bottom: 30px; /* más aire bajo el título */
+      margin-bottom: 30px;
     }
 
     .hero-subtitle strong {
@@ -288,7 +398,7 @@
     .hero-characters {
       justify-self: center;
       width: 100%;
-      max-width: 520px;       /* más grande */
+      max-width: 520px;
       border-radius: 34px;
       padding: 6px;
       background:
@@ -774,14 +884,45 @@
         </div>
       </div>
 
-      <nav>
-        <a href="#como-funciona">Cómo funciona</a>
-        <a href="#habilidad">100% habilidad</a>
-        <a href="#registro">Test Tube</a>
-        <button class="nav-cta" data-scroll="#registro">Unirme al piloto</button>
-      </nav>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <nav>
+          <a href="#como-funciona">Cómo funciona</a>
+          <a href="#habilidad">100% habilidad</a>
+          <a href="#registro">Test Tube</a>
+          <button class="nav-cta" data-scroll="#registro">Unirme al piloto</button>
+        </nav>
+
+        <!-- Botón hamburguesa menú Jugar -->
+        <button class="hamburger" id="hamburgerBtn"
+                aria-label="Abrir menú de juegos"
+                aria-expanded="false">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
     </div>
   </header>
+
+  <!-- Menú flotante de juegos -->
+  <div class="game-menu" id="gameMenu" aria-hidden="true">
+    <div class="game-menu-header">Jugar</div>
+    <a class="game-menu-item" href="memoryEmoji.html">
+      <span class="icon">🧠</span>
+      <span>Memory Emoji</span>
+    </a>
+    <a class="game-menu-item" href="emojiGame.html">
+      <span class="icon">🧩</span>
+      <span>Emoji Logic</span>
+    </a>
+    <a class="game-menu-item" href="speedTrapGame.html">
+      <span class="icon">⚡</span>
+      <span>Speed Trap</span>
+    </a>
+    <div class="game-menu-footnote">
+      Partidas rápidas. Solo habilidad.
+    </div>
+  </div>
 
   <!-- =========================
        HERO
@@ -1031,7 +1172,7 @@
 </div>
 
 <!-- =========================
-     JS SIMPLE (scroll + form)
+     JS SIMPLE (scroll + form + menú juegos)
      ========================== -->
 <script>
   // Scroll suave a secciones
@@ -1059,6 +1200,51 @@
     alert("¡Gracias por registrarte en el piloto de SkillArena! Pronto te contactaremos.");
     e.target.reset();
   });
+
+  // ===== Menú de juegos (hamburguesa) =====
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const gameMenu = document.getElementById("gameMenu");
+
+  function closeGameMenu() {
+    if (!gameMenu) return;
+    gameMenu.classList.remove("open");
+    gameMenu.setAttribute("aria-hidden", "true");
+    if (hamburgerBtn) {
+      hamburgerBtn.classList.remove("is-open");
+      hamburgerBtn.setAttribute("aria-expanded", "false");
+    }
+  }
+
+  if (hamburgerBtn && gameMenu) {
+    hamburgerBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      const isOpen = gameMenu.classList.toggle("open");
+      hamburgerBtn.classList.toggle("is-open", isOpen);
+      gameMenu.setAttribute("aria-hidden", String(!isOpen));
+      hamburgerBtn.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    // Cerrar al hacer clic fuera
+    document.addEventListener("click", function (e) {
+      if (!gameMenu.classList.contains("open")) return;
+      const target = e.target;
+      if (!gameMenu.contains(target) && target !== hamburgerBtn) {
+        closeGameMenu();
+      }
+    });
+
+    // Cerrar con ESC
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeGameMenu();
+      }
+    });
+
+    // Cerrar al hacer clic en un juego
+    gameMenu.querySelectorAll(".game-menu-item").forEach(function (link) {
+      link.addEventListener("click", closeGameMenu);
+    });
+  }
 </script>
 </body>
 </html>
