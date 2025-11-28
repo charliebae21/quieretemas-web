@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SkillArena · Emoji Logic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* ====== RESET SENCILLO ====== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-main: #020617;
+      --bg-card: rgba(15, 23, 42, 0.95);
+      --border-subtle: #1f2937;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent-primary: #6366f1;
+      --accent-secondary: #34d399;
+      --accent-outline: #f97373;
+      --neon-red: #ff4d6d;
+      --neon-green: #4ade80;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 40%, #000 100%);
+      color: var(--text-main);
+    }
+
+    /* ====== LAYOUT GENERAL ====== */
+    .page {
+      min-height: 100vh;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .page-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .page-header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+
+    .page-header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .header-info {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-info span {
+      font-weight: 600;
+      color: var(--accent-secondary);
+    }
+
+    @media (min-width: 768px) {
+      .page-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+    }
+
+    .layout {
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (min-width: 900px) {
+      .layout {
+        grid-template-columns: 2fr 1.1fr;
+      }
+    }
+
+    /* ====== CARDS ====== */
+    .card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .board-card {
+      margin-bottom: 12px;
+    }
+
+    /* ====== TABLERO EMOJIS (FILA HORIZONTAL) ====== */
+    .emoji-grid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      min-height: 120px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .emoji-button {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #fff;
+      font-size: 1.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition:
+        transform 0.12s ease,
+        border-color 0.12s ease,
+        box-shadow 0.12s ease,
+        background 0.12s ease;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      flex-shrink: 0;
+    }
+
+    .emoji-button:hover {
+      transform: scale(1.05) translateY(-1px);
+      border-color: var(--accent-primary);
+    }
+
+    .emoji-button.selected {
+      border: 2px solid #fbbf24;
+      box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.35);
+      background: #0f172a;
+    }
+
+    .emoji-button.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ====== CONTROLES ====== */
+    .controls-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .controls-row {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    select {
+      background: #020617;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      padding: 6px 10px;
+      color: var(--text-main);
+      font-size: 0.8rem;
+    }
+
+    select:focus {
+      outline: 2px solid var(--accent-primary);
+      outline-offset: 1px;
+    }
+
+    .buttons-row {
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition:
+        background 0.12s ease,
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease,
+        color 0.12s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 12px 25px rgba(79, 70, 229, 0.5);
+    }
+
+    .btn-primary:hover {
+      background: #818cf8;
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    .btn-outline {
+      background: #020617;
+      border-color: var(--accent-outline);
+      color: #fecaca;
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: rgba(248, 113, 113, 0.1);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ====== PANEL DERECHO ====== */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stats-card h2,
+    .history-card h2 {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stats-list {
+      display: grid;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-item dt {
+      color: var(--text-muted);
+    }
+
+    .stat-item dd {
+      font-weight: 600;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* Cronómetro más grande y rojo neón */
+    #time-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3b82f6; /* Azul neón */
+      text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+    }
+
+    /* ====== HISTORIAL ====== */
+    .history-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .history-item {
+      background: #020617;
+      border: 1px solid #1f2937;
+      border-radius: 14px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .history-emojis {
+      display: flex;
+      gap: 6px;
+      font-size: 1.3rem;
+    }
+
+    .history-meta {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+      font-size: 0.8rem;
+    }
+
+    .history-meta .attempt-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .history-meta .correct-label {
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .correct-zero {
+      color: var(--neon-red);
+      text-shadow: 0 0 6px rgba(255, 77, 109, 0.8);
+    }
+
+    .correct-positive {
+      color: var(--neon-green);
+      text-shadow: 0 0 6px rgba(74, 222, 128, 0.8);
+    }
+
+    .history-empty {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ====== FOOTER ====== */
+    .page-footer {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .page-footer p + p {
+      margin-top: 4px;
+    }
+
+    /* ====== MODAL DE VICTORIA ====== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+
+    .modal {
+      background: #020617;
+      border-radius: 18px;
+      border: 1px solid var(--accent-primary);
+      padding: 22px 18px 18px;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+      text-align: center;
+    }
+
+    .modal h2 {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    .modal p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .modal-stats {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+
+    .modal-stats span.label {
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .modal-secondary {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <div>
+        <h1>SkillArena · Emoji Logic</h1>
+        <p>Ordena la secuencia correcta de emojis intercambiando posiciones. Pura lógica, cero azar.</p>
+        <p>Tip: haz clic en un emoji y luego en otro para intercambiarlos. Observa cuántos quedan en la posición correcta.</p>
+	  </div>
+      <div class="header-info">
+        <p>Dificultad: <span id="difficulty-label">Beginner</span></p>
+        <p>Categoría: <span id="category-label">Fruits</span></p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- IZQUIERDA: TABLERO + CONTROLES -->
+      <section>
+        <div class="card board-card">
+          <div id="emoji-board" class="emoji-grid"></div>
+        </div>
+
+        <div class="card controls-card">
+          <div class="controls-row">
+            <div class="control-group">
+              <p class="control-label">Dificultad</p>
+              <select id="difficulty-select">
+                <option value="Beginner">Beginner (5 emojis)</option>
+                <option value="Pro">Pro (6 emojis)</option>
+                <option value="Master">Master (7 emojis)</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <p class="control-label">Categoría</p>
+              <select id="category-select">
+                <option value="Fruits">Frutas</option>
+                <option value="Animals">Animales</option>
+                <option value="Food">Comida</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="controls-row buttons-row">
+            <button id="new-game-btn" class="btn btn-primary">🎯 Nuevo juego</button>
+            <button id="reveal-btn" class="btn btn-outline" disabled>🙈 Mostrar solución</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- DERECHA: STATS + HISTORIAL -->
+      <aside class="side-panel">
+        <div class="card stats-card">
+          <h2>📊 Estadísticas</h2>
+          <dl class="stats-list">
+            <div class="stat-item">
+              <dt>Tiempo</dt>
+              <dd id="time-value">00:00</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Intentos</dt>
+              <dd id="attempts-value">0</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Movimientos</dt>
+              <dd id="moves-value">0</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Estado</dt>
+              <dd id="status-value">Listo para empezar</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="card history-card">
+          <h2>🧠 Historial de intentos</h2>
+          <p class="history-empty" id="history-empty">
+            Todavía no has hecho intentos.
+          </p>
+          <ul id="history-list" class="history-list"></ul>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="page-footer">
+      
+      <p>&copy; <span id="year"></span> SkillArena · Emoji Logic.</p>
+    </footer>
+  </div>
+
+  <!-- MODAL "LO LOGRASTE" -->
+  <div id="win-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2>Lo lograste 🎉</h2>
+      <p>Buen trabajo. Aquí están tus stats de esta partida:</p>
+      <div class="modal-stats">
+        <div><span class="label">Tiempo:</span><span id="win-time-value">00:00</span></div>
+        <div><span class="label">Movimientos:</span><span id="win-moves-value">0</span></div>
+      </div>
+      <button id="win-register-btn" class="btn btn-primary modal-btn">Registrar</button>
+      <div id="win-close-btn" class="modal-secondary">Cerrar</div>
+    </div>
+  </div>
+
+  <script>
+    // ====== CONFIGURACIÓN BASE ======
+    const Difficulty = {
+      Beginner: "Beginner",
+      Pro: "Pro",
+      Master: "Master",
+    };
+
+    const EmojiCategory = {
+      Fruits: "Fruits",
+      Animals: "Animals",
+      Food: "Food",
+    };
+
+    const EMOJI_SETS = {
+      [EmojiCategory.Fruits]: ["🍎", "🍌", "🍇", "🍓", "🍉", "🍒", "🍑", "🍍", "🥝", "🥭"],
+      [EmojiCategory.Animals]: ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯"],
+      [EmojiCategory.Food]: ["🍕", "🍔", "🍟", "🌭", "🍿", "🍩", "🍪", "🍰", "🍦", "🍭"],
+    };
+
+    const SEQUENCE_LENGTHS = {
+      [Difficulty.Beginner]: 5,
+      [Difficulty.Pro]: 6,
+      [Difficulty.Master]: 7,
+    };
+
+    // ====== ESTADO ======
+    let difficulty = Difficulty.Beginner;
+    let category = EmojiCategory.Fruits;
+
+    let solution = [];  // [{id, symbol}]
+    let board = [];
+    let selectedIndex = null;
+    let attempts = 0;
+    let moves = 0;
+    let timeElapsed = 0;
+    let timerId = null;
+    let history = [];
+    let status = "NotStarted"; // NotStarted | Playing | Won | Revealed
+
+    // ====== DOM ELEMENTS ======
+    let boardEl,
+        diffSelect,
+        catSelect,
+        newGameBtn,
+        revealBtn,
+        diffLabelEl,
+        catLabelEl,
+        timeEl,
+        attemptsEl,
+        movesEl,
+        statusEl,
+        historyListEl,
+        historyEmptyEl,
+        winModalEl,
+        winTimeEl,
+        winMovesEl,
+        winRegisterBtn,
+        winCloseBtn;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      boardEl = document.getElementById("emoji-board");
+      diffSelect = document.getElementById("difficulty-select");
+      catSelect = document.getElementById("category-select");
+      newGameBtn = document.getElementById("new-game-btn");
+      revealBtn = document.getElementById("reveal-btn");
+      diffLabelEl = document.getElementById("difficulty-label");
+      catLabelEl = document.getElementById("category-label");
+      timeEl = document.getElementById("time-value");
+      attemptsEl = document.getElementById("attempts-value");
+      movesEl = document.getElementById("moves-value");
+      statusEl = document.getElementById("status-value");
+      historyListEl = document.getElementById("history-list");
+      historyEmptyEl = document.getElementById("history-empty");
+
+      winModalEl = document.getElementById("win-modal");
+      winTimeEl = document.getElementById("win-time-value");
+      winMovesEl = document.getElementById("win-moves-value");
+      winRegisterBtn = document.getElementById("win-register-btn");
+      winCloseBtn = document.getElementById("win-close-btn");
+
+      const yearEl = document.getElementById("year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear().toString();
+
+      attachEvents();
+      renderBoard();
+      renderStats();
+      renderHistory();
+    });
+
+    function attachEvents() {
+      diffSelect.addEventListener("change", () => {
+        difficulty = diffSelect.value;
+        diffLabelEl.textContent = difficulty;
+      });
+
+      catSelect.addEventListener("change", () => {
+        category = catSelect.value;
+        catLabelEl.textContent = category;
+      });
+
+      newGameBtn.addEventListener("click", () => {
+        startNewGame();
+      });
+
+      revealBtn.addEventListener("click", () => {
+        revealSolution();
+      });
+
+      if (winRegisterBtn) {
+        winRegisterBtn.addEventListener("click", () => {
+          alert("Registro de partida pendiente de integrar con SkillArena 😉");
+          hideWinModal();
+        });
+      }
+
+      if (winCloseBtn) {
+        winCloseBtn.addEventListener("click", hideWinModal);
+      }
+    }
+
+    // ====== HELPERS ======
+    function shuffle(array) {
+      const result = array.slice();
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function arraysEqualById(a, b) {
+      if (a.length !== b.length) return false;
+      return a.every((item, idx) => item.id === b[idx].id);
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+      const s = (seconds % 60).toString().padStart(2, "0");
+      return m + ":" + s;
+    }
+
+    // ====== LÓGICA PRINCIPAL ======
+    function startNewGame() {
+      const symbols = EMOJI_SETS[category];
+      const length = SEQUENCE_LENGTHS[difficulty];
+
+      const picked = shuffle(symbols).slice(0, length);
+      solution = picked.map((symbol, index) => ({
+        id: category + "_" + symbol + "_" + index,
+        symbol,
+      }));
+
+      let shuffled = shuffle(solution);
+      let tries = 0;
+      while (arraysEqualById(shuffled, solution) && tries < 10) {
+        shuffled = shuffle(solution);
+        tries++;
+      }
+
+      board = shuffled;
+      selectedIndex = null;
+      attempts = 0;
+      moves = 0;
+      timeElapsed = 0;
+      history = [];
+      status = "Playing";
+
+      if (timerId) clearInterval(timerId);
+      timerId = setInterval(() => {
+        timeElapsed++;
+        renderStats();
+      }, 1000);
+
+      revealBtn.disabled = false;
+      newGameBtn.textContent = "🔁 Reiniciar";
+
+      hideWinModal();
+
+      renderBoard();
+      renderStats();
+      renderHistory();
+    }
+
+    function revealSolution() {
+      if (status !== "Playing") return;
+      status = "Revealed";
+      board = solution.slice();
+      selectedIndex = null;
+      stopTimer();
+      revealBtn.disabled = true;
+      renderBoard();
+      renderStats();
+    }
+
+    function stopTimer() {
+      if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function handleEmojiClick(index) {
+      if (status !== "Playing") return;
+      if (!board[index]) return;
+
+      if (selectedIndex === null) {
+        selectedIndex = index;
+        renderBoard();
+        return;
+      }
+
+      if (selectedIndex === index) {
+        selectedIndex = null;
+        renderBoard();
+        return;
+      }
+
+      const newBoard = board.slice();
+      const temp = newBoard[selectedIndex];
+      newBoard[selectedIndex] = newBoard[index];
+      newBoard[index] = temp;
+
+      board = newBoard;
+      moves++;
+      attempts++;
+
+      const correctCount = board.reduce((acc, emoji, i) => {
+        return emoji.id === (solution[i] && solution[i].id) ? acc + 1 : acc;
+      }, 0);
+
+      history.push({
+        attemptNumber: history.length + 1,
+        guess: board.slice(),
+        correctPositionCount: correctCount,
+      });
+
+      if (correctCount === solution.length) {
+        status = "Won";
+        stopTimer();
+        revealBtn.disabled = true;
+        showWinModal();
+      }
+
+      selectedIndex = null;
+      renderBoard();
+      renderStats();
+      renderHistory();
+    }
+
+    // ====== MODAL ======
+    function showWinModal() {
+      if (!winModalEl) return;
+      winTimeEl.textContent = formatTime(timeElapsed);
+      winMovesEl.textContent = moves.toString();
+      winModalEl.classList.remove("hidden");
+    }
+
+    function hideWinModal() {
+      if (!winModalEl) return;
+      winModalEl.classList.add("hidden");
+    }
+
+    // ====== RENDER ======
+    function renderBoard() {
+      boardEl.innerHTML = "";
+
+      if (status === "NotStarted" && board.length === 0) {
+        boardEl.innerHTML =
+          '<p style="text-align:center;font-size:0.8rem;color:#9ca3af;">Elige dificultad y categoría y haz clic en <strong>Nuevo juego</strong> para comenzar.</p>';
+        return;
+      }
+
+      if (!board.length) {
+        boardEl.innerHTML =
+          '<p style="text-align:center;font-size:0.8rem;color:#9ca3af;">Cargando...</p>';
+        return;
+      }
+
+      const interactionDisabled = status !== "Playing";
+
+      board.forEach((emoji, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = emoji.symbol;
+        btn.className = "emoji-button";
+
+        if (selectedIndex === index) {
+          btn.classList.add("selected");
+        }
+
+        if (interactionDisabled) {
+          btn.classList.add("disabled");
+        } else {
+          btn.addEventListener("click", () => handleEmojiClick(index));
+        }
+
+        boardEl.appendChild(btn);
+      });
+    }
+
+    function renderStats() {
+      timeEl.textContent = formatTime(timeElapsed);
+      attemptsEl.textContent = attempts.toString();
+      movesEl.textContent = moves.toString();
+
+      let text;
+      if (status === "NotStarted") text = "Listo para empezar";
+      else if (status === "Playing") text = "En juego";
+      else if (status === "Won") text = "¡Completado! 🎉";
+      else if (status === "Revealed") text = "Solución revelada";
+      statusEl.textContent = text;
+    }
+
+    function renderHistory() {
+      historyListEl.innerHTML = "";
+
+      if (!history.length) {
+        historyEmptyEl.style.display = "block";
+        return;
+      }
+
+      historyEmptyEl.style.display = "none";
+
+      const items = history.slice().reverse();
+
+      items.forEach((entry) => {
+        const li = document.createElement("li");
+        li.className = "history-item";
+
+        const emojisDiv = document.createElement("div");
+        emojisDiv.className = "history-emojis";
+        entry.guess.forEach((e) => {
+          const span = document.createElement("span");
+          span.textContent = e.symbol;
+          emojisDiv.appendChild(span);
+        });
+
+        const metaDiv = document.createElement("div");
+        metaDiv.className = "history-meta";
+
+        const attemptP = document.createElement("span");
+        attemptP.className = "attempt-label";
+        attemptP.textContent = "Intento #" + entry.attemptNumber;
+
+        const correctP = document.createElement("span");
+        correctP.className = "correct-label " +
+          (entry.correctPositionCount === 0 ? "correct-zero" : "correct-positive");
+        correctP.textContent =
+          entry.correctPositionCount + " / " + solution.length + " correctos";
+
+        metaDiv.appendChild(attemptP);
+        metaDiv.appendChild(correctP);
+
+        li.appendChild(emojisDiv);
+        li.appendChild(metaDiv);
+
+        historyListEl.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
