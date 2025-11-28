@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SkillArena · Memory Flip</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* ====== RESET SENCILLO ====== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-main: #020617;
+      --bg-card: rgba(15, 23, 42, 0.95);
+      --border-subtle: #1f2937;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent-primary: #6366f1;
+      --accent-secondary: #34d399;
+      --accent-outline: #f97373;
+      --neon-red: #ff4d6d;
+      --neon-green: #4ade80;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 40%, #000 100%);
+      color: var(--text-main);
+    }
+
+    /* ====== LAYOUT GENERAL (similar a Emoji Logic) ====== */
+    .page {
+      min-height: 100vh;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .page-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .page-header h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+    }
+
+    .page-header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .header-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-sub span {
+      font-weight: 600;
+      color: var(--accent-secondary);
+    }
+
+    @media (min-width: 768px) {
+      .page-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+    }
+
+    .layout {
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (min-width: 900px) {
+      .layout {
+        grid-template-columns: 2fr 1.1fr;
+      }
+    }
+
+    /* ====== CARDS ====== */
+    .card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .board-card {
+      margin-bottom: 12px;
+    }
+
+    /* ====== TABLERO MEMORY FLIP ====== */
+    .memory-grid-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .memory-grid {
+      display: grid;
+      gap: 8px;
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 480px) {
+      .memory-grid {
+        max-width: 360px;
+        gap: 6px;
+      }
+    }
+
+    .memory-card {
+      position: relative;
+      width: 100%;
+      border-radius: 14px;
+      perspective: 900px;
+      cursor: pointer;
+      transform-style: preserve-3d;
+    }
+
+    .memory-card::before {
+      content: "";
+      display: block;
+      padding-top: 100%; /* carta cuadrada más compacta */
+    }
+
+    .memory-card-inner {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      transform-style: preserve-3d;
+      transition: transform 0.28s ease;
+      box-shadow: 0 10px 20px rgba(1, 8, 30, 0.9);
+    }
+
+    .memory-face {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(22px, 5vw, 32px);
+    }
+
+    .memory-front {
+      background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), #020617);
+      border: 1px solid #4b5563;
+      color: #e5e7eb;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .memory-front span.logo {
+      opacity: 0.9;
+    }
+
+    .memory-back {
+      background: radial-gradient(circle at center, #020617, #020617);
+      border: 1px solid #4b5563;
+      transform: rotateY(180deg);
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+    }
+
+    .memory-card.flipped .memory-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .memory-card.matched .memory-back {
+      border-color: var(--neon-green);
+      box-shadow:
+        0 0 0 2px rgba(74, 222, 128, 0.6),
+        0 12px 22px rgba(74, 222, 128, 0.4);
+    }
+
+    .memory-card.disabled {
+      pointer-events: none;
+      opacity: 0.96;
+    }
+
+    .memory-card.pulse-success .memory-back {
+      animation: pulseSuccess 0.22s ease-out;
+    }
+
+    .memory-card.pulse-error .memory-front {
+      animation: pulseError 0.18s ease-out;
+    }
+
+    @keyframes pulseSuccess {
+      0% {
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.9);
+      }
+      100% {
+        box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+      }
+    }
+
+    @keyframes pulseError {
+      0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.9);
+      }
+      100% {
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+      }
+    }
+
+    /* ====== CONTROLES IZQUIERDA ====== */
+    .controls-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    @media (min-width: 640px) {
+      .controls-row {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .levels-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-level {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        background 0.12s ease,
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease,
+        color 0.12s ease;
+    }
+
+    .btn-level span.size {
+      font-weight: 500;
+      color: #9ca3af;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .btn-level:hover {
+      background: #0f172a;
+      transform: translateY(-1px);
+      border-color: var(--accent-primary);
+      color: #e5e7eb;
+    }
+
+    .btn-level.active {
+      background: var(--accent-primary);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 12px 25px rgba(79, 70, 229, 0.5);
+    }
+
+    .reset-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-reset {
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--accent-outline);
+      background: #020617;
+      color: #fecaca;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        background 0.12s ease,
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease,
+        color 0.12s ease;
+    }
+
+    .btn-reset:hover {
+      background: rgba(248, 113, 113, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .rules-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .rules-text b {
+      color: #e5e7eb;
+    }
+
+    /* ====== PANEL DERECHO (STATS) ====== */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stats-card h2 {
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stats-list {
+      display: grid;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-item dt {
+      color: var(--text-muted);
+    }
+
+    .stat-item dd {
+      font-weight: 600;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+    }
+
+    /* Cronómetro estilo Emoji Logic (neón) */
+    #time-remaining {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #3b82f6;
+      text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
+    }
+
+    #time-remaining.danger {
+      color: var(--neon-red);
+      text-shadow: 0 0 10px rgba(255, 77, 109, 0.9);
+    }
+
+    #pairs-found {
+      color: var(--neon-green);
+      text-shadow: 0 0 6px rgba(74, 222, 128, 0.7);
+    }
+
+    #errors-count {
+      color: var(--neon-red);
+      text-shadow: 0 0 6px rgba(255, 77, 109, 0.7);
+    }
+
+    .status-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ====== FOOTER ====== */
+    .page-footer {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ====== MODAL RESULTADO ====== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+
+    .modal {
+      background: #020617;
+      border-radius: 18px;
+      border: 1px solid var(--accent-primary);
+      padding: 20px 18px 16px;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.9);
+      text-align: center;
+    }
+
+    .modal h2 {
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+
+    .modal h2.win {
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+    }
+
+    .modal h2.lose {
+      color: var(--neon-red);
+      text-shadow: 0 0 10px rgba(255, 77, 109, 0.8);
+    }
+
+    .modal p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .modal-stats {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+
+    .modal-stats span.label {
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .modal-btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition:
+        background 0.12s ease,
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease,
+        color 0.12s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 12px 25px rgba(79, 70, 229, 0.5);
+    }
+
+    .btn-primary:hover {
+      background: #818cf8;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: #020617;
+      border-color: var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    .btn-outline:hover {
+      background: #0b1120;
+      border-color: #4b5563;
+      color: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <div>
+        <h1>SkillArena · Memory Flip</h1>
+        <p>Encuentra las parejas de emojis en el menor tiempo posible. Pura memoria, cero azar.</p>
+        <p class="header-sub">
+          Ganas al descubrir todas las parejas. Si se acaba el tiempo o acumulas muchos errores, pierdes.
+        </p>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- IZQUIERDA: TABLERO + CONTROLES -->
+      <section>
+        <div class="card board-card">
+          <div class="memory-grid-wrapper">
+            <div id="grid" class="memory-grid"></div>
+          </div>
+        </div>
+
+        <div class="card controls-card">
+          <div class="controls-row">
+            <div class="levels-row">
+              <button class="btn-level active" data-level="beginner">
+                Beginner <span class="size">3x4</span>
+              </button>
+              <button class="btn-level" data-level="pro">
+                Pro <span class="size">4x4</span>
+              </button>
+              <button class="btn-level" data-level="master">
+                Master <span class="size">4x5</span>
+              </button>
+            </div>
+            <div class="reset-row">
+              <button class="btn-reset" id="reset-btn">🔁 Reiniciar</button>
+            </div>
+          </div>
+          <p class="rules-text">
+            Voltea las cartas de dos en dos. Si los emojis coinciden, se bloquean como pareja.
+            Si fallas, se voltean de nuevo y sumas un error. El objetivo es completar todas las parejas
+            en el menor <b>tiempo</b> posible con el menor número de <b>errores</b>.
+          </p>
+        </div>
+      </section>
+
+      <!-- DERECHA: STATS -->
+      <aside class="side-panel">
+        <div class="card stats-card">
+          <h2>📊 Estadísticas</h2>
+          <dl class="stats-list">
+            <div class="stat-item">
+              <dt>Tiempo</dt>
+              <dd id="time-remaining">00:00</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Parejas encontradas</dt>
+              <dd id="pairs-found">0</dd>
+            </div>
+            <div class="stat-item">
+              <dt>Parejas destapadas</dt>
+              <dd id="errors-count">0</dd>
+            </div>
+          </dl>
+          <p class="status-text" id="status-text">En juego · 100% habilidad, 0% azar.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="page-footer">
+      <p>&copy; <span id="year"></span> SkillArena · Memory Flip.</p>
+    </footer>
+  </div>
+
+  <!-- MODAL RESULTADO -->
+  <div id="result-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2 id="result-title" class="">Resultado</h2>
+      <p id="result-message">
+        Aquí aparecerá tu rendimiento en esta partida de Memory Flip.
+      </p>
+      <div class="modal-stats">
+        <div>
+          <span class="label">Tiempo total:</span>
+          <span id="result-time">00:00</span>
+        </div>
+        <div>
+          <span class="label">Errores:</span>
+          <span id="result-errors">0</span>
+        </div>
+        <div>
+          <span class="label">Parejas:</span>
+          <span id="result-pairs">0/0</span>
+        </div>
+      </div>
+      <div class="modal-btn-row">
+        <button id="play-again-btn" class="btn btn-primary">▶️ Jugar de nuevo</button>
+        <button id="change-level-btn" class="btn btn-outline">🎛 Cambiar nivel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ====== CONFIGURACIÓN EMOJIS Y NIVELES ======
+    const emojiPool = [
+      "😎", "⭐", "💎", "😺", "🧠", "🔥", "🐢", "⚡",
+      "🍀", "🦊", "🐼", "🌀", "🌙", "🌟", "🧩", "🍉",
+      "🚀", "🐙", "🐺", "🎧", "🎯", "🌈", "🧲", "🐸",
+      "🦁", "👾", "🧸", "🐧", "🎲", "💥", "🎭", "🤖"
+    ];
+
+    // Beginner 3x4, Pro 4x4, Master 4x5
+    const levels = {
+      beginner: { rows: 3, cols: 4, time: 60 },
+      pro: { rows: 4, cols: 4, time: 120 },
+      master: { rows: 4, cols: 5, time: 210 }
+    };
+
+    const gridElement = document.getElementById("grid");
+    const timeElement = document.getElementById("time-remaining");
+    const pairsFoundElement = document.getElementById("pairs-found");
+    const errorsElement = document.getElementById("errors-count");
+    const statusText = document.getElementById("status-text");
+
+    const modal = document.getElementById("result-modal");
+    const resultTitle = document.getElementById("result-title");
+    const resultMessage = document.getElementById("result-message");
+    const resultTime = document.getElementById("result-time");
+    const resultErrors = document.getElementById("result-errors");
+    const resultPairs = document.getElementById("result-pairs");
+
+    const playAgainBtn = document.getElementById("play-again-btn");
+    const changeLevelBtn = document.getElementById("change-level-btn");
+    const resetBtn = document.getElementById("reset-btn");
+    const levelButtons = Array.from(document.querySelectorAll(".btn-level"));
+
+    const yearEl = document.getElementById("year");
+    if (yearEl) yearEl.textContent = new Date().getFullYear().toString();
+
+    let currentLevelKey = "beginner";
+    let timerInterval = null;
+    let timeRemaining = 0; // lógica de límite
+    let elapsedTime = 0;   // tiempo que mostramos en pantalla
+    let totalPairs = 0;
+    let pairsFound = 0;
+    let errors = 0;
+    let flippedCards = [];
+    let lockBoard = false;
+
+    // ====== HELPERS ======
+    function shuffle(array) {
+      const arr = array.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Comprueba que ningún emoji tenga otro igual en celdas vecinas (8 direcciones)
+    function isValidDeck(deck, rows, cols) {
+      const directions = [
+        [-1, -1], [-1, 0], [-1, 1],
+        [ 0, -1],          [ 0, 1],
+        [ 1, -1], [ 1, 0], [ 1, 1]
+      ];
+
+      for (let index = 0; index < deck.length; index++) {
+        const emoji = deck[index];
+        const r = Math.floor(index / cols);
+        const c = index % cols;
+
+        for (const [dr, dc] of directions) {
+          const nr = r + dr;
+          const nc = c + dc;
+          if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue;
+          const neighborIndex = nr * cols + nc;
+          if (deck[neighborIndex] === emoji) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    // Genera un mazo donde las parejas nunca quedan juntas
+    function generateDeckWithSpacing(emojis, rows, cols) {
+      const baseDeck = [...emojis, ...emojis];
+      let attempts = 0;
+      const maxAttempts = 5000;
+
+      while (attempts < maxAttempts) {
+        const candidate = shuffle(baseDeck);
+        if (isValidDeck(candidate, rows, cols)) {
+          return candidate;
+        }
+        attempts++;
+      }
+      // Si por alguna razón no se encuentra (muy improbable), devolvemos cualquier shuffle
+      return shuffle(baseDeck);
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+    }
+
+    function updateStatsDisplay() {
+      // Mostramos el tiempo transcurrido, NO el restante
+      timeElement.textContent = formatTime(elapsedTime);
+      pairsFoundElement.textContent = pairsFound;
+      errorsElement.textContent = errors;
+
+      // Indicador de peligro cuando quedan <=10s de margen respecto al límite
+      if (timeRemaining <= 10) {
+        timeElement.classList.add("danger");
+      } else {
+        timeElement.classList.remove("danger");
+      }
+
+      if (timeRemaining > 0 && pairsFound < totalPairs) {
+        statusText.textContent = "En juego · 100% habilidad, 0% azar.";
+      }
+    }
+
+    function clearTimer() {
+      if (timerInterval !== null) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function startTimer() {
+      clearTimer();
+      timerInterval = setInterval(() => {
+        elapsedTime++;
+        timeRemaining--;
+        if (timeRemaining < 0) {
+          timeRemaining = 0;
+        }
+        updateStatsDisplay();
+        if (timeRemaining <= 0) {
+          clearTimer();
+          endGame(false);
+        }
+      }, 1000);
+    }
+
+    // ====== CREACIÓN DE CARTAS ======
+    function createCard(emoji) {
+      const card = document.createElement("div");
+      card.className = "memory-card";
+      card.dataset.emoji = emoji;
+
+      const inner = document.createElement("div");
+      inner.className = "memory-card-inner";
+
+      const front = document.createElement("div");
+      front.className = "memory-face memory-front";
+      const logoSpan = document.createElement("span");
+      logoSpan.className = "logo";
+      logoSpan.textContent = "SA";
+      front.appendChild(logoSpan);
+
+      const back = document.createElement("div");
+      back.className = "memory-face memory-back";
+      back.textContent = emoji;
+
+      inner.appendChild(front);
+      inner.appendChild(back);
+      card.appendChild(inner);
+
+      card.addEventListener("click", () => handleCardClick(card));
+
+      return card;
+    }
+
+    function handleCardClick(card) {
+      if (lockBoard) return;
+      if (card.classList.contains("flipped") || card.classList.contains("matched")) return;
+
+      card.classList.add("flipped");
+      flippedCards.push(card);
+
+      if (flippedCards.length === 2) {
+        checkForMatch();
+      }
+    }
+
+    function checkForMatch() {
+      const [card1, card2] = flippedCards;
+      const isMatch = card1.dataset.emoji === card2.dataset.emoji;
+
+      if (isMatch) {
+        card1.classList.add("matched", "disabled", "pulse-success");
+        card2.classList.add("matched", "disabled", "pulse-success");
+
+        setTimeout(() => {
+          card1.classList.remove("pulse-success");
+          card2.classList.remove("pulse-success");
+        }, 220);
+
+        flippedCards = [];
+        pairsFound++;
+        updateStatsDisplay();
+
+        if (pairsFound === totalPairs) {
+          clearTimer();
+          endGame(true);
+        }
+      } else {
+        lockBoard = true;
+        card1.classList.add("pulse-error");
+        card2.classList.add("pulse-error");
+        errors++;
+        updateStatsDisplay();
+
+        setTimeout(() => {
+          card1.classList.remove("flipped", "pulse-error");
+          card2.classList.remove("flipped", "pulse-error");
+          flippedCards = [];
+          lockBoard = false;
+        }, 650);
+      }
+    }
+
+    // ====== FIN DE PARTIDA ======
+    function endGame(win) {
+      modal.classList.remove("hidden");
+      resultTime.textContent = formatTime(elapsedTime);
+      resultErrors.textContent = errors;
+      resultPairs.textContent = pairsFound + " / " + totalPairs;
+
+      if (win) {
+        resultTitle.textContent = "🔥 ¡Lo lograste!";
+        resultTitle.classList.remove("lose");
+        resultTitle.classList.add("win");
+        resultMessage.textContent =
+          "Completaste todas las parejas de Memory Flip. Tu tiempo y errores ahora pueden medirse contra otros jugadores.";
+        statusText.textContent = "Partida completada. ¡Bien jugado!";
+      } else {
+        resultTitle.textContent = "⏳ Tiempo agotado";
+        resultTitle.classList.remove("win");
+        resultTitle.classList.add("lose");
+        resultMessage.textContent =
+          "El tiempo se te fue encima esta vez. Ajusta tu ritmo y vuelve a intentarlo.";
+        statusText.textContent = "Partida finalizada. Puedes intentarlo de nuevo.";
+      }
+    }
+
+    // ====== CONFIGURAR GRID POR NIVEL ======
+    function setupGrid(levelKey) {
+      const { rows, cols, time } = levels[levelKey];
+      gridElement.innerHTML = "";
+      gridElement.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+
+      const numCards = rows * cols;
+      totalPairs = numCards / 2;
+      pairsFound = 0;
+      errors = 0;
+      timeRemaining = time; // límite de tiempo
+      elapsedTime = 0;      // cronómetro visual
+      flippedCards = [];
+      lockBoard = false;
+
+      const selectedEmojis = emojiPool.slice(0, totalPairs);
+      const deck = generateDeckWithSpacing(selectedEmojis, rows, cols);
+
+      deck.forEach((emoji) => {
+        const card = createCard(emoji);
+        gridElement.appendChild(card);
+      });
+
+      updateStatsDisplay();
+      clearTimer();
+      startTimer();
+      modal.classList.add("hidden");
+      statusText.textContent = "En juego · 100% habilidad, 0% azar.";
+    }
+
+    function setActiveLevelButton(levelKey) {
+      levelButtons.forEach((btn) => {
+        const key = btn.getAttribute("data-level");
+        if (key === levelKey) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    // ====== EVENTOS ======
+    function init() {
+      levelButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const levelKey = btn.getAttribute("data-level");
+          if (levelKey === currentLevelKey) return;
+          currentLevelKey = levelKey;
+          setActiveLevelButton(currentLevelKey);
+          setupGrid(currentLevelKey);
+        });
+      });
+
+      resetBtn.addEventListener("click", () => {
+        setupGrid(currentLevelKey);
+      });
+
+      playAgainBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+        setupGrid(currentLevelKey);
+      });
+
+      changeLevelBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+        const keys = Object.keys(levels);
+        const idx = keys.indexOf(currentLevelKey);
+        const nextKey = keys[(idx + 1) % keys.length];
+        currentLevelKey = nextKey;
+        setActiveLevelButton(currentLevelKey);
+        setupGrid(currentLevelKey);
+      });
+
+      setActiveLevelButton(currentLevelKey);
+      setupGrid(currentLevelKey);
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
