@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SkillArena.co – Compite. Demuestra tu habilidad. Gana dinero real.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description"
+        content="SkillArena.co es una plataforma de competencias 100% de habilidad. Sin suerte, sin azar. Compite en juegos de memoria, lógica y velocidad y gana premios reales." />
+
+  <!-- Fuente recomendada (Montserrat) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+  <style>
+    /* ===============================
+       PALETA Y VARIABLES DE MARCA
+       =============================== */
+    :root {
+      --color-bg: #0C0C0C;
+      --color-primary: #4B1B6F;    /* Morado SkillArena */
+      --color-primary-light: #8C4DFF;
+      --color-orange: #FF6A00;     /* Naranja CTA */
+      --color-red1: #E01846;       /* Círculo izquierdo */
+      --color-red2: #FE6824;       /* Círculo derecho */
+      --color-text: #F5F5F5;
+      --color-muted: #8A8A8A;
+      --color-card: #141414;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --transition-fast: 0.2s ease-out;
+      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.5);
+      --max-width: 1100px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #111 0, #050505 55%, #000 100%);
+      color: var(--color-text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* ===============================
+       LAYOUT BASE
+       =============================== */
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.9),
+        rgba(0, 0, 0, 0.75),
+        transparent
+      );
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .nav-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-sub {
+      font-size: 0.68rem;
+      color: var(--color-muted);
+      text-transform: uppercase;
+    }
+
+    /* Logo simplificado en SVG */
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 0.85rem;
+    }
+
+    nav a {
+      color: var(--color-muted);
+      font-weight: 500;
+      position: relative;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--color-orange), var(--color-primary-light));
+      transition: width var(--transition-fast);
+    }
+
+    nav a:hover {
+      color: var(--color-text);
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      padding: 8px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--color-orange), var(--color-red1));
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      box-shadow: 0 0 20px rgba(255, 106, 0, 0.4);
+      border: none;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 26px rgba(255, 106, 0, 0.6);
+    }
+
+    /* ===============================
+       HERO
+       =============================== */
+
+    main {
+      flex: 1;
+    }
+
+    .hero-wrapper {
+      background:
+        radial-gradient(circle at 80% 10%, rgba(140, 77, 255, 0.23), transparent 50%),
+        radial-gradient(circle at 85% 75%, rgba(255, 106, 0, 0.22), transparent 55%);
+    }
+
+    .hero {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 56px 20px 78px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.25fr);
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero-kicker {
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--color-orange);
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 3.2vw, 3rem);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .hero-title span.highlight {
+      background: linear-gradient(135deg, var(--color-orange), var(--color-primary-light));
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      color: var(--color-muted);
+      max-width: 34rem;
+      margin-bottom: 30px; /* más aire bajo el título */
+    }
+
+    .hero-subtitle strong {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      padding: 12px 26px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--color-orange), var(--color-red1));
+      color: #fff;
+      box-shadow: var(--shadow-soft);
+      font-size: 0.95rem;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+      box-shadow: 0 22px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-ghost {
+      padding: 11px 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: transparent;
+      color: var(--color-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .hero-trustline {
+      font-size: 0.8rem;
+      color: var(--color-muted);
+    }
+
+    .hero-trustline strong {
+      color: #fff;
+    }
+
+    /* Lado derecho del héroe: personajes */
+    .hero-characters {
+      justify-self: center;
+      width: 100%;
+      max-width: 520px;       /* más grande */
+      border-radius: 34px;
+      padding: 6px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(139, 77, 255, 0.7), transparent 60%),
+        radial-gradient(circle at 80% 100%, rgba(255, 106, 0, 0.55), transparent 60%),
+        #050505;
+      box-shadow: 0 26px 60px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .hero-characters-inner {
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .hero-characters img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Tarjeta de torneo (reutilizable abajo) */
+    .tournament-card {
+      justify-self: center;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at top, rgba(139, 77, 255, 0.55), transparent 60%),
+        radial-gradient(circle at bottom, rgba(255, 106, 0, 0.35), transparent 65%),
+        #050505;
+      padding: 20px 18px 22px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .hero-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 0.8rem;
+      color: var(--color-muted);
+    }
+
+    .hero-pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.74rem;
+    }
+
+    .hero-pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-orange);
+      box-shadow: 0 0 10px rgba(255, 106, 0, 0.6);
+    }
+
+    .arena-card {
+      margin-top: 6px;
+      background: #050509;
+      border-radius: 24px;
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .arena-metric-label {
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      margin-bottom: 4px;
+    }
+
+    .arena-metric-main {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .arena-metric-main span.value {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .arena-metric-main span.unit {
+      font-size: 0.8rem;
+      color: var(--color-muted);
+    }
+
+    .arena-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .arena-tag {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.7rem;
+      color: var(--color-muted);
+    }
+
+    .arena-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      margin-top: 8px;
+    }
+
+    .arena-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .arena-status-badge {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--color-primary-light);
+      box-shadow: 0 0 12px rgba(140, 77, 255, 0.8);
+    }
+
+    .arena-prize {
+      text-align: right;
+    }
+
+    .arena-prize-label {
+      color: var(--color-muted);
+    }
+
+    .arena-prize-amount {
+      font-weight: 600;
+      color: var(--color-orange);
+      font-size: 0.9rem;
+    }
+
+    /* ===============================
+       SECCIONES GENERALES
+       =============================== */
+
+    section {
+      padding: 0 20px 60px;
+    }
+
+    .section-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--color-muted);
+      max-width: 30rem;
+      margin-bottom: 26px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--color-card);
+      border-radius: var(--radius-lg);
+      padding: 18px 18px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.5);
+    }
+
+    .feature-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
+      background: radial-gradient(circle at top, var(--color-primary-light), var(--color-primary));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .feature-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .feature-text {
+      font-size: 0.88rem;
+      color: var(--color-muted);
+    }
+
+    /* ===============================
+       SECCIÓN: TRUST / HABILIDAD
+       =============================== */
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .trust-item {
+      background: var(--color-card);
+      border-radius: var(--radius-md);
+      padding: 12px 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.8rem;
+    }
+
+    .trust-label {
+      font-weight: 600;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trust-label span.icon {
+      font-size: 1rem;
+    }
+
+    .trust-text {
+      color: var(--color-muted);
+      font-size: 0.78rem;
+    }
+
+    .trust-banner {
+      margin-top: 24px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg,
+        rgba(75, 27, 111, 0.7),
+        rgba(224, 24, 70, 0.6)
+      );
+      font-size: 0.9rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* ===============================
+       SECCIÓN: REGISTRO / TEST TUBE
+       =============================== */
+
+    .signup {
+      padding-bottom: 80px;
+    }
+
+    .signup-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .signup-card {
+      background:
+        radial-gradient(circle at top left, rgba(140, 77, 255, 0.4), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(255, 106, 0, 0.45), transparent 60%),
+        #050505;
+      border-radius: 26px;
+      padding: 26px 22px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow-soft);
+      max-width: none;
+      margin: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .signup-title {
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    .signup-text {
+      font-size: 0.9rem;
+      color: var(--color-muted);
+      margin-bottom: 18px;
+    }
+
+    .signup-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .field {
+      flex: 1 1 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+
+    .field label {
+      color: var(--color-muted);
+    }
+
+    .field input,
+    .field select {
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(0, 0, 0, 0.6);
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--color-primary-light);
+      box-shadow: 0 0 0 1px rgba(140, 77, 255, 0.5);
+      background: rgba(0, 0, 0, 0.9);
+    }
+
+    .signup-cta {
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .signup-cta button {
+      width: 100%;
+    }
+
+    .signup-footnote {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--color-muted);
+    }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px 20px 22px;
+      font-size: 0.78rem;
+      color: var(--color-muted);
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      row-gap: 10px;
+    }
+
+    /* ===============================
+       RESPONSIVE
+       =============================== */
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: left;
+        padding-top: 40px;
+      }
+
+      .hero-characters {
+        order: -1;
+        max-width: 100%;
+        margin-bottom: 16px;
+      }
+
+      nav {
+        display: none; /* MVP mobile */
+      }
+
+      .signup-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero {
+        padding-top: 34px;
+        padding-bottom: 60px;
+        gap: 32px;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .hero-ctas {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn-primary,
+      .btn-ghost {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .trust-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .signup-card {
+        padding: 20px 16px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- =========================
+       HEADER / NAVBAR
+       ========================== -->
+  <header>
+    <div class="nav-inner">
+      <div class="brand">
+        <!-- Logo simplificado en SVG -->
+        <svg class="logo-icon" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="hexBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FF6A00" />
+              <stop offset="100%" stop-color="#E01846" />
+            </linearGradient>
+          </defs>
+          <path d="M28 10 L72 10 L90 50 L72 90 L28 90 L10 50 Z"
+                fill="none"
+                stroke="url(#hexBorder)"
+                stroke-width="10"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+          <path d="M50 18
+                   C35 18 27 32 27 41
+                   C27 54 40 57 40 67
+                   C40 76 46 82 50 82
+                   C65 82 73 68 73 59
+                   C73 46 60 43 60 33
+                   C60 24 54 18 50 18 Z"
+                fill="#4B1B6F" />
+          <path d="M50 18
+                   C65 18 73 32 73 41
+                   C73 54 60 57 60 67
+                   C60 76 54 82 50 82
+                   C35 82 27 68 27 59
+                   C27 46 40 43 40 33
+                   C40 24 46 18 50 18 Z"
+                fill="#050509"
+                opacity="0.9" />
+          <circle cx="60" cy="35" r="6" fill="#FE6824" />
+          <circle cx="40" cy="65" r="6" fill="#E01846" />
+        </svg>
+
+        <div class="brand-text">
+          <div class="brand-title">SkillArena.co</div>
+          <div class="brand-sub">Habilidad · Competencia · Premios reales</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#habilidad">100% habilidad</a>
+        <a href="#registro">Test Tube</a>
+        <button class="nav-cta" data-scroll="#registro">Unirme al piloto</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- =========================
+       HERO
+       ========================== -->
+  <main>
+    <div class="hero-wrapper">
+      <section class="hero" id="inicio">
+        <div>
+          <div class="hero-kicker">Lanzamiento piloto • Test Tube</div>
+          <h1 class="hero-title">
+            Compite. Demuestra tu <span class="highlight">habilidad</span>. Gana dinero real.
+          </h1>
+          <p class="hero-subtitle">
+            <strong>Sin suerte. Sin azar.</strong> SkillArena es la plataforma donde tu
+            velocidad, memoria y lógica deciden al ganador &mdash; no la suerte.
+          </p>
+
+          <div class="hero-ctas">
+            <button class="btn-primary" data-scroll="#registro">
+              Únete al Test Arena
+            </button>
+            <button class="btn-ghost" data-scroll="#como-funciona">
+              Ver cómo funciona
+            </button>
+          </div>
+
+          <p class="hero-trustline">
+            <strong>100% habilidad. 0% azar.</strong> No es apuesta; es competencia real entre jugadores.
+          </p>
+        </div>
+
+        <!-- Personajes SkillArena -->
+        <aside class="hero-characters" aria-label="Personajes SkillArena">
+          <div class="hero-characters-inner">
+            <img src="personajes.png"
+                 alt="Koji (memoria), Dash (velocidad) y Orion (lógica) – Personajes de SkillArena" />
+          </div>
+        </aside>
+      </section>
+    </div>
+
+    <!-- =========================
+         BLOQUES: PRÓXIMO TORNEO + TEST TUBE
+         ========================== -->
+    <section class="signup" id="registro">
+      <div class="section-inner">
+        <div class="signup-grid">
+          <!-- Bloque izquierda: Próximo torneo piloto -->
+          <article class="tournament-card">
+            <div class="hero-panel-header">
+              <span>Próximo torneo piloto</span>
+              <span class="hero-pill">
+                <span class="hero-pill-dot"></span>
+                Cupos limitados
+              </span>
+            </div>
+
+            <div class="arena-card">
+              <div class="arena-metric-label">Juego de memoria • Modo relámpago</div>
+              <div class="arena-metric-main">
+                <span class="value">10</span><span class="unit">jugadores</span>
+              </div>
+
+              <div class="arena-tags">
+                <span class="arena-tag">⏱ &lt; 60 segundos</span>
+                <span class="arena-tag">🧠 Memoria</span>
+                <span class="arena-tag">⚡ Velocidad</span>
+              </div>
+
+              <div class="arena-footer">
+                <div class="arena-status">
+                  <span class="arena-status-badge"></span>
+                  <span>Test Tube SkillArena</span>
+                </div>
+                <div class="arena-prize">
+                  <div class="arena-prize-label">Bolsa de premio</div>
+                  <div class="arena-prize-amount">$100.000 COP</div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Bloque derecha: Únete al Test Tube -->
+          <article class="signup-card">
+            <div>
+              <h2 class="signup-title">Únete al Test Tube de SkillArena</h2>
+              <p class="signup-text">
+                Estamos probando las primeras arenas de memoria, lógica y velocidad con un grupo
+                reducido de jugadores. Regístrate para participar en los torneos piloto.
+              </p>
+
+              <form class="signup-form" id="signupForm">
+                <div class="field">
+                  <label for="email">Correo electrónico</label>
+                  <input id="email" name="email" type="email"
+                         placeholder="tucorreo@ejemplo.com" required />
+                </div>
+
+                <div class="field">
+                  <label for="phone">Número de celular</label>
+                  <input id="phone" name="phone" type="tel"
+                         placeholder="+57 300 000 0000" required />
+                </div>
+
+                <div class="field">
+                  <label for="pais">País</label>
+                  <select id="pais" name="pais" required>
+                    <option value="">Selecciona tu país</option>
+                    <option value="CO">Colombia</option>
+                    <option value="MX">México</option>
+                    <option value="AR">Argentina</option>
+                    <option value="PE">Perú</option>
+                    <option value="CL">Chile</option>
+                    <option value="OTRO">Otro</option>
+                  </select>
+                </div>
+
+                <div class="signup-cta">
+                  <button type="submit" class="btn-primary">
+                    Quiero participar en el piloto
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <p class="signup-footnote">
+              Al registrarte aceptas que te contactemos para invitarte a los primeros torneos
+              y enviarte novedades de SkillArena.co.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         CÓMO FUNCIONA
+         ========================== -->
+    <section id="como-funciona">
+      <div class="section-inner">
+        <h2 class="section-title">Cómo funciona SkillArena</h2>
+        <p class="section-subtitle">
+          Todo está diseñado para que la habilidad hable por ti. Tres pasos, partidas rápidas y
+          resultados claros.
+        </p>
+
+        <div class="grid-3">
+          <article class="feature-card">
+            <div class="feature-icon">1</div>
+            <h3 class="feature-title">Elige tu reto</h3>
+            <p class="feature-text">
+              Selecciona entre juegos de <strong>memoria</strong>, <strong>lógica</strong> y
+              <strong>velocidad</strong>. Partidas cortas, intensas y medibles.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">2</div>
+            <h3 class="feature-title">Compite contra personas reales</h3>
+            <p class="feature-text">
+              En cada torneo te enfrentas a otros jugadores, nunca contra la máquina.
+              Todos tienen las mismas condiciones de tiempo y reto.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">3</div>
+            <h3 class="feature-title">Gana premios acordados</h3>
+            <p class="feature-text">
+              Los premios se definen de antemano entre los jugadores. Quien tenga mejor desempeño
+              se lleva la bolsa. Simple, directo, transparente.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         100% HABILIDAD / TRUST
+         ========================== -->
+    <section id="habilidad">
+      <div class="section-inner">
+        <h2 class="section-title">100% habilidad. 0% azar.</h2>
+        <p class="section-subtitle">
+          SkillArena no depende de suerte, estadísticas ni pronósticos. Cada partida se define
+          únicamente por la destreza del jugador.
+        </p>
+
+        <div class="trust-grid">
+          <div class="trust-item">
+            <div class="trust-label">
+              <span class="icon">🔒</span>
+              <span>Pagos seguros</span>
+            </div>
+            <p class="trust-text">
+              Transferencias rápidas y confiables a los ganadores.
+            </p>
+          </div>
+
+          <div class="trust-item">
+            <div class="trust-label">
+              <span class="icon">👥</span>
+              <span>Comunidad verificada</span>
+            </div>
+            <p class="trust-text">
+              Jugadores reales, sin bots. Torneos cerrados y controlados.
+            </p>
+          </div>
+
+          <div class="trust-item">
+            <div class="trust-label">
+              <span class="icon">🎯</span>
+              <span>Resultados transparentes</span>
+            </div>
+            <p class="trust-text">
+              Habilidad medible: ranking por tiempo, lógica y precisión.
+            </p>
+          </div>
+
+          <div class="trust-item">
+            <div class="trust-label">
+              <span class="icon">⚔️</span>
+              <span>Competencia P2P</span>
+            </div>
+            <p class="trust-text">
+              Premios acordados entre jugadores. Nada contra la casa.
+            </p>
+          </div>
+        </div>
+
+        <div class="trust-banner">
+          100% juego de habilidades y destreza. <strong>No es apuesta. No es azar.</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================
+       FOOTER
+       ========================== -->
+  <footer>
+    <div class="footer-inner">
+      <span>© <span id="year"></span> SkillArena.co. Todos los derechos reservados.</span>
+      <span>Juego 100% de habilidades. No es plataforma de apuestas.</span>
+    </div>
+  </footer>
+
+</div>
+
+<!-- =========================
+     JS SIMPLE (scroll + form)
+     ========================== -->
+<script>
+  // Scroll suave a secciones
+  document.querySelectorAll("[data-scroll]").forEach(function (el) {
+    el.addEventListener("click", function () {
+      var target = document.querySelector(el.getAttribute("data-scroll"));
+      if (target) {
+        window.scrollTo({
+          top: target.offsetTop - 70,
+          behavior: "smooth"
+        });
+      }
+    });
+  });
+
+  // Año dinámico en footer
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Manejo básico del formulario (MVP)
+  document.getElementById("signupForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value.trim();
+    if (!email) return;
+
+    alert("¡Gracias por registrarte en el piloto de SkillArena! Pronto te contactaremos.");
+    e.target.reset();
+  });
+</script>
+</body>
+</html>
