@@ -76,10 +76,55 @@
 
     @media (min-width: 768px) {
       .page-header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-end;
+        flex-direction: column;
+        align-items: flex-start;
       }
+    }
+
+    /* ====== BARRA DE ACCIONES BAJO EL TÍTULO ====== */
+    .header-actions {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .action-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition:
+        background 0.12s ease,
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease,
+        color 0.12s ease;
+    }
+
+    .action-btn:hover {
+      background: #0f172a;
+      transform: translateY(-1px);
+      border-color: var(--accent-primary);
+      color: #e5e7eb;
+    }
+
+    .action-btn-secondary {
+      border-color: var(--accent-outline);
+      color: #fecaca;
+    }
+
+    .action-btn-secondary:hover {
+      background: rgba(248, 113, 113, 0.15);
     }
 
     .layout {
@@ -125,7 +170,7 @@
     @media (max-width: 480px) {
       .memory-grid {
         max-width: 360px;
-        gap: 6px;
+        gap: 6px; /* Solo ajustamos el espacio, NO el tamaño de carta */
       }
     }
 
@@ -141,7 +186,7 @@
     .memory-card::before {
       content: "";
       display: block;
-      padding-top: 100%; /* carta cuadrada más compacta */
+      padding-top: 100%; /* carta cuadrada */
     }
 
     .memory-card-inner {
@@ -409,7 +454,7 @@
       color: var(--text-muted);
     }
 
-    /* ====== MODAL RESULTADO ====== */
+    /* ====== MODALES ====== */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -470,6 +515,7 @@
 
     .modal-btn-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       margin-top: 6px;
     }
@@ -527,6 +573,14 @@
         <p class="header-sub">
           Ganas al descubrir todas las parejas. Si se acaba el tiempo o acumulas muchos errores, pierdes.
         </p>
+
+        <!-- BARRA DE ACCIONES PRINCIPAL -->
+        <div class="header-actions">
+          <button class="action-btn" id="btn-difficulty">Dificultad</button>
+          <button class="action-btn" id="btn-help">Ayuda</button>
+          <button class="action-btn" id="btn-reset-top">Reiniciar</button>
+          <button class="action-btn action-btn-secondary" id="btn-back">Regresar</button>
+        </div>
       </div>
     </header>
 
@@ -614,8 +668,26 @@
         </div>
       </div>
       <div class="modal-btn-row">
-        <button id="play-again-btn" class="btn btn-primary">▶️ Jugar de nuevo</button>
-        <button id="change-level-btn" class="btn btn-outline">🎛 Cambiar nivel</button>
+        <button id="play-again-btn" class="btn btn-primary">🔁 Reiniciar</button>
+        <button id="increase-level-btn" class="btn btn-outline">⬆️ Aumentar dificultad</button>
+        <button id="close-result-btn" class="btn btn-outline">✖ Quitar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AYUDA -->
+  <div id="help-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2 class="win">❓ Cómo jugar</h2>
+      <p>
+        Voltea las cartas de dos en dos. Si los emojis coinciden, se bloquean como pareja.
+        Si fallas, se voltean de nuevo y sumas un error.
+      </p>
+      <p>
+        Ganas al descubrir todas las parejas en el menor tiempo posible y con la menor cantidad de errores.
+      </p>
+      <div class="modal-btn-row">
+        <button id="close-help-btn" class="btn btn-primary">Entendido</button>
       </div>
     </div>
   </div>
@@ -650,12 +722,23 @@
     const resultPairs = document.getElementById("result-pairs");
 
     const playAgainBtn = document.getElementById("play-again-btn");
-    const changeLevelBtn = document.getElementById("change-level-btn");
+    const increaseLevelBtn = document.getElementById("increase-level-btn");
+    const closeResultBtn = document.getElementById("close-result-btn");
     const resetBtn = document.getElementById("reset-btn");
     const levelButtons = Array.from(document.querySelectorAll(".btn-level"));
 
     const yearEl = document.getElementById("year");
     if (yearEl) yearEl.textContent = new Date().getFullYear().toString();
+
+    // Botones barra superior
+    const difficultyBtn = document.getElementById("btn-difficulty");
+    const helpBtn = document.getElementById("btn-help");
+    const topResetBtn = document.getElementById("btn-reset-top");
+    const backBtn = document.getElementById("btn-back");
+
+    // Modal de ayuda
+    const helpModal = document.getElementById("help-modal");
+    const closeHelpBtn = document.getElementById("close-help-btn");
 
     let currentLevelKey = "beginner";
     let timerInterval = null;
@@ -912,6 +995,7 @@
 
     // ====== EVENTOS ======
     function init() {
+      // Niveles
       levelButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
           const levelKey = btn.getAttribute("data-level");
@@ -922,24 +1006,68 @@
         });
       });
 
+      // Reiniciar (botón dentro de la tarjeta)
       resetBtn.addEventListener("click", () => {
         setupGrid(currentLevelKey);
       });
 
+      // Botón Reiniciar de la barra superior
+      if (topResetBtn) {
+        topResetBtn.addEventListener("click", () => {
+          setupGrid(currentLevelKey);
+        });
+      }
+
+      // Botón Dificultad: hace scroll suave a los niveles
+      const controlsCard = document.querySelector(".controls-card");
+      if (difficultyBtn && controlsCard) {
+        difficultyBtn.addEventListener("click", () => {
+          controlsCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
+      // Botón Regresar: vuelve al index.html
+      if (backBtn) {
+        backBtn.addEventListener("click", () => {
+          window.location.href = "index.html";
+        });
+      }
+
+      // Modal Resultado: Reiniciar
       playAgainBtn.addEventListener("click", () => {
         modal.classList.add("hidden");
         setupGrid(currentLevelKey);
       });
 
-      changeLevelBtn.addEventListener("click", () => {
-        modal.classList.add("hidden");
-        const keys = Object.keys(levels);
-        const idx = keys.indexOf(currentLevelKey);
-        const nextKey = keys[(idx + 1) % keys.length];
-        currentLevelKey = nextKey;
-        setActiveLevelButton(currentLevelKey);
-        setupGrid(currentLevelKey);
-      });
+      // Modal Resultado: Aumentar dificultad
+      if (increaseLevelBtn) {
+        increaseLevelBtn.addEventListener("click", () => {
+          const keys = Object.keys(levels);
+          const idx = keys.indexOf(currentLevelKey);
+          const nextKey = keys[(idx + 1) % keys.length];
+          currentLevelKey = nextKey;
+          setActiveLevelButton(currentLevelKey);
+          modal.classList.add("hidden");
+          setupGrid(currentLevelKey);
+        });
+      }
+
+      // Modal Resultado: Quitar (solo cerrar)
+      if (closeResultBtn) {
+        closeResultBtn.addEventListener("click", () => {
+          modal.classList.add("hidden");
+        });
+      }
+
+      // Modal Ayuda
+      if (helpBtn && helpModal && closeHelpBtn) {
+        helpBtn.addEventListener("click", () => {
+          helpModal.classList.remove("hidden");
+        });
+        closeHelpBtn.addEventListener("click", () => {
+          helpModal.classList.add("hidden");
+        });
+      }
 
       setActiveLevelButton(currentLevelKey);
       setupGrid(currentLevelKey);
