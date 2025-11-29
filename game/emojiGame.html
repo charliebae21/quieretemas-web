@@ -31,7 +31,11 @@
 
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1f2937 0, #020617 40%, #000 100%);
+      /* Fondo similar a Memory Flip */
+      background:
+        radial-gradient(circle at top right, #2b1347 0, transparent 45%),
+        radial-gradient(circle at bottom left, #1a0b2a 0, transparent 55%),
+        #02010b;
       color: var(--text-main);
     }
 
@@ -57,6 +61,11 @@
     .page-header h1 {
       font-size: 1.7rem;
       font-weight: 700;
+      /* Degradado tipo “habilidad” */
+      background: linear-gradient(90deg, #ff7a18, #ff4b5c, #c471f5);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     .page-header p {
@@ -77,9 +86,8 @@
 
     @media (min-width: 768px) {
       .page-header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-end;
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
 
@@ -92,6 +100,60 @@
       .layout {
         grid-template-columns: 2fr 1.1fr;
       }
+    }
+
+    /* ====== BOTONES SUPERIORES (borde rojo neón) ====== */
+    .action-btn,
+    .btn,
+    .difficulty-option,
+    .category-option {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--neon-red);
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition:
+        background 0.12s ease,
+        transform 0.12s ease,
+        box-shadow 0.12s ease,
+        border-color 0.12s ease,
+        color 0.12s ease;
+    }
+
+    .action-btn:hover,
+    .btn:hover,
+    .difficulty-option:hover,
+    .category-option:hover {
+      background: rgba(248, 113, 113, 0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(255, 77, 109, 0.6);
+    }
+
+    .header-actions {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    @media (min-width: 768px) {
+      .header-actions {
+        justify-content: flex-start;
+      }
+    }
+
+    .action-btn--secondary {
+      border-color: var(--accent-outline);
     }
 
     /* ====== CARDS ====== */
@@ -108,7 +170,7 @@
       margin-bottom: 12px;
     }
 
-    /* ====== TABLERO EMOJIS (FILA HORIZONTAL) ====== */
+    /* ====== TABLERO EMOJIS ====== */
     .emoji-grid {
       display: flex;
       justify-content: center;
@@ -156,103 +218,6 @@
       cursor: not-allowed;
     }
 
-    /* ====== CONTROLES ====== */
-    .controls-card {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .controls-row {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    @media (min-width: 640px) {
-      .controls-row {
-        flex-direction: row;
-        justify-content: space-between;
-      }
-    }
-
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .control-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-    }
-
-    select {
-      background: #020617;
-      border-radius: 999px;
-      border: 1px solid #374151;
-      padding: 6px 10px;
-      color: var(--text-main);
-      font-size: 0.8rem;
-    }
-
-    select:focus {
-      outline: 2px solid var(--accent-primary);
-      outline-offset: 1px;
-    }
-
-    .buttons-row {
-      gap: 8px;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 8px 12px;
-      border-radius: 12px;
-      border: 1px solid transparent;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition:
-        background 0.12s ease,
-        transform 0.12s ease,
-        box-shadow 0.12s ease,
-        border-color 0.12s ease,
-        color 0.12s ease;
-    }
-
-    .btn-primary {
-      background: var(--accent-primary);
-      color: #fff;
-      box-shadow: 0 12px 25px rgba(79, 70, 229, 0.5);
-    }
-
-    .btn-primary:hover {
-      background: #818cf8;
-      transform: translateY(-1px) scale(1.01);
-    }
-
-    .btn-outline {
-      background: #020617;
-      border-color: var(--accent-outline);
-      color: #fecaca;
-    }
-
-    .btn-outline:hover:not(:disabled) {
-      background: rgba(248, 113, 113, 0.1);
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
     /* ====== PANEL DERECHO ====== */
     .side-panel {
       display: flex;
@@ -287,14 +252,15 @@
 
     .stat-item dd {
       font-weight: 600;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
     }
 
-    /* Cronómetro más grande y rojo neón */
+    /* Cronómetro estilo neón */
     #time-value {
       font-size: 2rem;
       font-weight: 700;
-      color: #3b82f6; /* Azul neón */
+      color: #3b82f6;
       text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
     }
 
@@ -370,7 +336,7 @@
       margin-top: 4px;
     }
 
-    /* ====== MODAL DE VICTORIA ====== */
+    /* ====== MODALES ====== */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -399,12 +365,14 @@
     .modal h2 {
       font-size: 1.4rem;
       margin-bottom: 4px;
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
     }
 
     .modal p {
       font-size: 0.85rem;
       color: var(--text-muted);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .modal-stats {
@@ -419,17 +387,21 @@
       margin-right: 4px;
     }
 
-    .modal-btn {
-      width: 100%;
-      margin-top: 6px;
+    .modal-btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      justify-content: center;
+      align-items: center;
     }
 
-    .modal-secondary {
-      margin-top: 6px;
-      font-size: 0.75rem;
+    .modal-section-title {
+      margin-top: 10px;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      cursor: pointer;
-      text-decoration: underline;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
   </style>
 </head>
@@ -439,8 +411,17 @@
       <div>
         <h1>SkillArena · Emoji Logic</h1>
         <p>Ordena la secuencia correcta de emojis intercambiando posiciones. Pura lógica, cero azar.</p>
-        <p>Tip: haz clic en un emoji y luego en otro para intercambiarlos. Observa cuántos quedan en la posición correcta.</p>
-	  </div>
+        <p>Haz clic en un emoji y luego en otro para intercambiarlos. Observa cuántos quedan en la posición correcta.</p>
+
+        <!-- BARRA DE ACCIONES PRINCIPAL -->
+        <div class="header-actions">
+          <button class="action-btn" id="btn-difficulty">Dificultad</button>
+          <button class="action-btn" id="btn-help">Ayuda</button>
+          <button class="action-btn" id="btn-reset-top">Reiniciar</button>
+          <button class="action-btn action-btn--secondary" id="btn-back">Regresar</button>
+        </div>
+      </div>
+
       <div class="header-info">
         <p>Dificultad: <span id="difficulty-label">Beginner</span></p>
         <p>Categoría: <span id="category-label">Fruits</span></p>
@@ -448,41 +429,23 @@
     </header>
 
     <main class="layout">
-      <!-- IZQUIERDA: TABLERO + CONTROLES -->
+      <!-- IZQUIERDA: TABLERO -->
       <section>
         <div class="card board-card">
           <div id="emoji-board" class="emoji-grid"></div>
         </div>
-
-        <div class="card controls-card">
-          <div class="controls-row">
-            <div class="control-group">
-              <p class="control-label">Dificultad</p>
-              <select id="difficulty-select">
-                <option value="Beginner">Beginner (5 emojis)</option>
-                <option value="Pro">Pro (6 emojis)</option>
-                <option value="Master">Master (7 emojis)</option>
-              </select>
-            </div>
-            <div class="control-group">
-              <p class="control-label">Categoría</p>
-              <select id="category-select">
-                <option value="Fruits">Frutas</option>
-                <option value="Animals">Animales</option>
-                <option value="Food">Comida</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="controls-row buttons-row">
-            <button id="new-game-btn" class="btn btn-primary">🎯 Nuevo juego</button>
-            <button id="reveal-btn" class="btn btn-outline" disabled>🙈 Mostrar solución</button>
-          </div>
-        </div>
       </section>
 
-      <!-- DERECHA: STATS + HISTORIAL -->
+      <!-- DERECHA: HISTORIAL PRIMERO, LUEGO STATS -->
       <aside class="side-panel">
+        <div class="card history-card">
+          <h2>🧠 Historial de intentos</h2>
+          <p class="history-empty" id="history-empty">
+            Todavía no has hecho intentos.
+          </p>
+          <ul id="history-list" class="history-list"></ul>
+        </div>
+
         <div class="card stats-card">
           <h2>📊 Estadísticas</h2>
           <dl class="stats-list">
@@ -504,19 +467,10 @@
             </div>
           </dl>
         </div>
-
-        <div class="card history-card">
-          <h2>🧠 Historial de intentos</h2>
-          <p class="history-empty" id="history-empty">
-            Todavía no has hecho intentos.
-          </p>
-          <ul id="history-list" class="history-list"></ul>
-        </div>
       </aside>
     </main>
 
     <footer class="page-footer">
-      
       <p>&copy; <span id="year"></span> SkillArena · Emoji Logic.</p>
     </footer>
   </div>
@@ -530,8 +484,53 @@
         <div><span class="label">Tiempo:</span><span id="win-time-value">00:00</span></div>
         <div><span class="label">Movimientos:</span><span id="win-moves-value">0</span></div>
       </div>
-      <button id="win-register-btn" class="btn btn-primary modal-btn">Registrar</button>
-      <div id="win-close-btn" class="modal-secondary">Cerrar</div>
+      <div class="modal-btn-row">
+        <button id="win-register-btn" class="btn">Registrar</button>
+        <button id="win-close-btn" class="btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AYUDA -->
+  <div id="help-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2>Cómo jugar</h2>
+      <p>
+        Haz clic en un emoji y luego en otro para intercambiarlos de posición.
+      </p>
+      <p>
+        Tu objetivo es encontrar el orden secreto usando la lógica y el pensamiento. 
+        Cada intento registra cuántos emojis están en la posición correcta.
+      </p>
+      <p>
+        Usa ese historial para deducir la secuencia y encuentra el orden correcto 
+        en el menor tiempo posible y con la menor cantidad de movimientos.
+      </p>
+      <div class="modal-btn-row">
+        <button id="close-help-btn" class="btn">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DIFICULTAD + CATEGORÍA -->
+  <div id="difficulty-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2>Selecciona dificultad</h2>
+      <p>Elige el nivel y la categoría con la que quieres jugar.</p>
+
+      <div class="modal-section-title">Dificultad</div>
+      <div class="modal-btn-row">
+        <button class="difficulty-option btn" data-level="Beginner">Beginner</button>
+        <button class="difficulty-option btn" data-level="Pro">Pro</button>
+        <button class="difficulty-option btn" data-level="Master">Master</button>
+      </div>
+
+      <div class="modal-section-title">Categoría</div>
+      <div class="modal-btn-row">
+        <button class="category-option btn" data-category="Fruits">Frutas</button>
+        <button class="category-option btn" data-category="Animals">Animales</button>
+        <button class="category-option btn" data-category="Food">Comida</button>
+      </div>
     </div>
   </div>
 
@@ -573,14 +572,10 @@
     let timeElapsed = 0;
     let timerId = null;
     let history = [];
-    let status = "NotStarted"; // NotStarted | Playing | Won | Revealed
+    let status = "NotStarted"; // NotStarted | Playing | Won | Revealed (se mantiene por compatibilidad)
 
     // ====== DOM ELEMENTS ======
     let boardEl,
-        diffSelect,
-        catSelect,
-        newGameBtn,
-        revealBtn,
         diffLabelEl,
         catLabelEl,
         timeEl,
@@ -593,14 +588,19 @@
         winTimeEl,
         winMovesEl,
         winRegisterBtn,
-        winCloseBtn;
+        winCloseBtn,
+        btnDifficulty,
+        btnHelp,
+        btnResetTop,
+        btnBack,
+        helpModalEl,
+        helpCloseBtn,
+        difficultyModalEl,
+        difficultyButtons,
+        categoryButtons;
 
     document.addEventListener("DOMContentLoaded", () => {
       boardEl = document.getElementById("emoji-board");
-      diffSelect = document.getElementById("difficulty-select");
-      catSelect = document.getElementById("category-select");
-      newGameBtn = document.getElementById("new-game-btn");
-      revealBtn = document.getElementById("reveal-btn");
       diffLabelEl = document.getElementById("difficulty-label");
       catLabelEl = document.getElementById("category-label");
       timeEl = document.getElementById("time-value");
@@ -616,34 +616,25 @@
       winRegisterBtn = document.getElementById("win-register-btn");
       winCloseBtn = document.getElementById("win-close-btn");
 
+      btnDifficulty = document.getElementById("btn-difficulty");
+      btnHelp = document.getElementById("btn-help");
+      btnResetTop = document.getElementById("btn-reset-top");
+      btnBack = document.getElementById("btn-back");
+      helpModalEl = document.getElementById("help-modal");
+      helpCloseBtn = document.getElementById("close-help-btn");
+
+      difficultyModalEl = document.getElementById("difficulty-modal");
+      difficultyButtons = document.querySelectorAll(".difficulty-option");
+      categoryButtons = document.querySelectorAll(".category-option");
+
       const yearEl = document.getElementById("year");
       if (yearEl) yearEl.textContent = new Date().getFullYear().toString();
 
       attachEvents();
-      renderBoard();
-      renderStats();
-      renderHistory();
+      startNewGame();   // empezamos con una partida lista
     });
 
     function attachEvents() {
-      diffSelect.addEventListener("change", () => {
-        difficulty = diffSelect.value;
-        diffLabelEl.textContent = difficulty;
-      });
-
-      catSelect.addEventListener("change", () => {
-        category = catSelect.value;
-        catLabelEl.textContent = category;
-      });
-
-      newGameBtn.addEventListener("click", () => {
-        startNewGame();
-      });
-
-      revealBtn.addEventListener("click", () => {
-        revealSolution();
-      });
-
       if (winRegisterBtn) {
         winRegisterBtn.addEventListener("click", () => {
           alert("Registro de partida pendiente de integrar con SkillArena 😉");
@@ -654,6 +645,67 @@
       if (winCloseBtn) {
         winCloseBtn.addEventListener("click", hideWinModal);
       }
+
+      // BOTONES SUPERIORES
+      if (btnResetTop) {
+        btnResetTop.addEventListener("click", () => {
+          startNewGame();
+        });
+      }
+
+      if (btnBack) {
+        btnBack.addEventListener("click", () => {
+          window.location.href = "index.html";
+        });
+      }
+
+      if (btnHelp && helpModalEl && helpCloseBtn) {
+        btnHelp.addEventListener("click", () => {
+          helpModalEl.classList.remove("hidden");
+        });
+
+        helpCloseBtn.addEventListener("click", () => {
+          helpModalEl.classList.add("hidden");
+        });
+
+        helpModalEl.addEventListener("click", (e) => {
+          if (e.target === helpModalEl) helpModalEl.classList.add("hidden");
+        });
+      }
+
+      if (btnDifficulty && difficultyModalEl) {
+        btnDifficulty.addEventListener("click", () => {
+          difficultyModalEl.classList.remove("hidden");
+        });
+
+        difficultyModalEl.addEventListener("click", (e) => {
+          if (e.target === difficultyModalEl) difficultyModalEl.classList.add("hidden");
+        });
+      }
+
+      // Botones de dificultad (modal)
+      difficultyButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const level = btn.getAttribute("data-level");
+          if (!level) return;
+          difficulty = level;
+          diffLabelEl.textContent = difficulty;
+          startNewGame();
+          difficultyModalEl.classList.add("hidden");
+        });
+      });
+
+      // Botones de categoría (modal)
+      categoryButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const cat = btn.getAttribute("data-category");
+          if (!cat) return;
+          category = cat;
+          catLabelEl.textContent = category;
+          startNewGame();
+          difficultyModalEl.classList.add("hidden");
+        });
+      });
     }
 
     // ====== HELPERS ======
@@ -709,9 +761,6 @@
         renderStats();
       }, 1000);
 
-      revealBtn.disabled = false;
-      newGameBtn.textContent = "🔁 Reiniciar";
-
       hideWinModal();
 
       renderBoard();
@@ -720,12 +769,12 @@
     }
 
     function revealSolution() {
+      // Función conservada por compatibilidad de lógica, aunque no se expone en la UI
       if (status !== "Playing") return;
       status = "Revealed";
       board = solution.slice();
       selectedIndex = null;
       stopTimer();
-      revealBtn.disabled = true;
       renderBoard();
       renderStats();
     }
@@ -769,13 +818,12 @@
       history.push({
         attemptNumber: history.length + 1,
         guess: board.slice(),
-        correctPositionCount: correctCount,
+      correctPositionCount: correctCount,
       });
 
       if (correctCount === solution.length) {
         status = "Won";
         stopTimer();
-        revealBtn.disabled = true;
         showWinModal();
       }
 
@@ -785,7 +833,7 @@
       renderHistory();
     }
 
-    // ====== MODAL ======
+    // ====== MODAL WIN ======
     function showWinModal() {
       if (!winModalEl) return;
       winTimeEl.textContent = formatTime(timeElapsed);
@@ -804,7 +852,7 @@
 
       if (status === "NotStarted" && board.length === 0) {
         boardEl.innerHTML =
-          '<p style="text-align:center;font-size:0.8rem;color:#9ca3af;">Elige dificultad y categoría y haz clic en <strong>Nuevo juego</strong> para comenzar.</p>';
+          '<p style="text-align:center;font-size:0.8rem;color:#9ca3af;">Haz clic en <strong>Dificultad</strong> para configurar el juego.</p>';
         return;
       }
 
@@ -881,7 +929,8 @@
         attemptP.textContent = "Intento #" + entry.attemptNumber;
 
         const correctP = document.createElement("span");
-        correctP.className = "correct-label " +
+        correctP.className =
+          "correct-label " +
           (entry.correctPositionCount === 0 ? "correct-zero" : "correct-positive");
         correctP.textContent =
           entry.correctPositionCount + " / " + solution.length + " correctos";
